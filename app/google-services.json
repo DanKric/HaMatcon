@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "833259736044",
+    "project_id": "hamatcon-d778e",
+    "storage_bucket": "hamatcon-d778e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:833259736044:android:5d91350b9aa1a91fcb0ec9",
+        "android_client_info": {
+          "package_name": "com.example.hamatcon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBUbzHYCK6fgo5-qLL4uHT9O5JYJW-6Fg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

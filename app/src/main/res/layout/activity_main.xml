@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/dark_background"
+    android:padding="16dp">
+
+    <!-- Search Bar -->
+    <EditText
+        android:id="@+id/editTextSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter ingredients..."
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:padding="12dp"
+        android:background="@drawable/search_bar_bg"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Horizontal scrollable chips for cuisine filter -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:scrollbars="none">
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupCuisine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            app:selectionRequired="false"
+            android:orientation="horizontal"
+            tools:ignore="MissingClass" />
+    </HorizontalScrollView>
+
+    <!-- RecyclerView for recipes -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewRecipes"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        tools:ignore="SpeakableTextPresent" />
+
+</LinearLayout>
