@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">HaMatcon</string>
+    <string name="logout">Logout</string>
+
 </resources>

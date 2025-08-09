@@ -9,9 +9,15 @@
     <color name="white">#FFFFFFFF</color>
     <color name="chip_bg_selector">#57D7A5</color>
 
-    <!-- ✅ New dark mode colors -->
+    <!--  New dark mode colors -->
     <color name="dark_background">#1D1D1D</color>
     <color name="card_background">#262626</color>
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#FFFFFF</color>
+
+    <!--  New light mode colors -->
+    <color name="light_background">#F2FDFB</color>
+
+
+
 </resources>

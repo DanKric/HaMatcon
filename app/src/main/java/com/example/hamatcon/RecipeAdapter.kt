@@ -5,9 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hamatcon.databinding.ItemRecipeBinding
 
-class RecipeAdapter(private var recipes: List<Recipe>) : RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
 
-    inner class RecipeViewHolder(val binding: ItemRecipeBinding) : RecyclerView.ViewHolder(binding.root)
+class RecipeAdapter(private val recipes: MutableList<Recipe>) :
+    RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
+
+    class RecipeViewHolder(val binding: ItemRecipeBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
         val binding = ItemRecipeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -16,24 +18,23 @@ class RecipeAdapter(private var recipes: List<Recipe>) : RecyclerView.Adapter<Re
 
     override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
         val recipe = recipes[position]
-        val avgRating = recipe.averageRating()
-
-        holder.binding.ratingBar.rating = avgRating
-        holder.binding.textViewRecipeName.text = recipe.name
+        holder.binding.ratingBar.rating = recipe.averageRating()
+        holder.binding.textViewRecipeName.text = recipe.name.ifEmpty { "Unnamed Recipe" }
         holder.binding.textViewMatchPercent.text = "${recipe.matchPercent}% match"
         holder.binding.textViewDifficulty.text = recipe.difficulty
         holder.binding.textViewCookTime.text = recipe.cookTime
         holder.binding.imageViewThumbnail.setImageResource(recipe.thumbnailResId)
+
         holder.itemView.setOnClickListener {
             RecipeDetailActivity.start(holder.itemView.context, recipe)
         }
-
     }
 
     override fun getItemCount(): Int = recipes.size
 
     fun updateList(newRecipes: List<Recipe>) {
-        this.recipes = newRecipes
+        recipes.clear()
+        recipes.addAll(newRecipes)
         notifyDataSetChanged()
     }
 }

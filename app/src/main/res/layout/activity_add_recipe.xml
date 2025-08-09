@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@color/dark_background">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/editName"
+            android:hint="Recipe Name"
+            android:textColor="@android:color/white"
+            android:textColorHint="#B0B0B0"
+            android:backgroundTint="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/editCuisine"
+            android:hint="Cuisine"
+            android:textColor="@android:color/white"
+            android:textColorHint="#B0B0B0"
+            android:backgroundTint="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/editCookTime"
+            android:hint="Cook Time"
+            android:textColor="@android:color/white"
+            android:textColorHint="#B0B0B0"
+            android:backgroundTint="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/editDifficulty"
+            android:hint="Difficulty"
+            android:textColor="@android:color/white"
+            android:textColorHint="#B0B0B0"
+            android:backgroundTint="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/editIngredients"
+            android:hint="Ingredients (comma separated)"
+            android:textColor="@android:color/white"
+            android:textColorHint="#B0B0B0"
+            android:backgroundTint="@android:color/white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/editInstructions"
+            android:hint="Instructions"
+            android:textColor="@android:color/white"
+            android:textColorHint="#B0B0B0"
+            android:backgroundTint="@android:color/white"
+            android:minLines="4"
+            android:gravity="top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/buttonSubmit"
+            android:text="Submit"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/teal_700"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"/>
+    </LinearLayout>
+</ScrollView>

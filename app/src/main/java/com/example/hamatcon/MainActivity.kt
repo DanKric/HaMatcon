@@ -4,82 +4,26 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.hamatcon.databinding.ActivityMainBinding
-import com.example.hamatcon.databinding.ItemRecipeBinding
-import com.example.hamatcon.Recipe
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.firestore.ktx.firestore
-
+import com.google.firebase.auth.FirebaseAuth
+import android.content.Intent
 import android.util.Log
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 // Data class for Recipe
 
 class MainActivity : AppCompatActivity() {
+    private var recipesListener: ListenerRegistration? = null
     private lateinit var binding: ActivityMainBinding
     private lateinit var recipeAdapter: RecipeAdapter
-    private val allRecipes = listOf(
-        Recipe(
-            name = "Spaghetti Carbonara",
-            matchPercent = 80,
-            difficulty = "Easy",
-            cookTime = "20 min",
-            thumbnailResId = R.drawable.placeholder,
-            cuisine = "Italian",
-            ingredients = listOf("spaghetti", "egg", "cheese", "bacon"),
-            instructions = "1. Cook spaghetti.\n2. Mix eggs and cheese.\n3. Fry bacon.\n4. Combine all and serve.",
-            ratings = listOf(5, 4, 5, 5)
-        ),
-        Recipe(
-            name = "Sushi Rolls",
-            matchPercent = 60,
-            difficulty = "Medium",
-            cookTime = "45 min",
-            thumbnailResId = R.drawable.placeholder,
-            cuisine = "Asian",
-            ingredients = listOf("rice", "nori", "fish", "cucumber"),
-            instructions = "1. Cook sushi rice.\n2. Lay out nori.\n3. Add rice and fillings.\n4. Roll tightly and slice.",
-            ratings = listOf(4, 4, 5, 3)
-        ),
-        Recipe(
-            name = "Shakshuka",
-            matchPercent = 90,
-            difficulty = "Easy",
-            cookTime = "30 min",
-            thumbnailResId = R.drawable.placeholder,
-            cuisine = "Israeli",
-            ingredients = listOf("egg", "tomato", "pepper", "onion"),
-            instructions = "1. Sauté onions and peppers.\n2. Add tomatoes and spices.\n3. Crack eggs on top.\n4. Cook until eggs are set.",
-            ratings = listOf(5, 5, 4, 5)
-        ),
-        Recipe(
-            name = "Greek Salad",
-            matchPercent = 70,
-            difficulty = "Easy",
-            cookTime = "15 min",
-            thumbnailResId = R.drawable.placeholder,
-            cuisine = "Mediterranean",
-            ingredients = listOf("tomato", "cucumber", "feta", "olive"),
-            instructions = "1. Chop veggies.\n2. Add feta and olives.\n3. Drizzle olive oil and vinegar.\n4. Toss and serve.",
-            ratings = listOf(3, 4, 4, 3)
-        ),
-        Recipe(
-            name = "Pad Thai",
-            matchPercent = 50,
-            difficulty = "Hard",
-            cookTime = "40 min",
-            thumbnailResId = R.drawable.placeholder,
-            cuisine = "Asian",
-            ingredients = listOf("noodle", "egg", "peanut", "shrimp"),
-            instructions = "1. Soak rice noodles.\n2. Stir-fry garlic and proteins.\n3. Add sauce and noodles.\n4. Toss with peanuts.",
-            ratings = listOf(5, 3, 4, 4)
-        )
-    )
+    private val allRecipes = mutableListOf<Recipe>()
+
 
     private var filteredRecipes = allRecipes.toMutableList()
     private val cuisineTypes = listOf("All", "Asian", "Italian", "Israeli", "Mediterranean")
@@ -87,20 +31,33 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Setup view binding first
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val db = Firebase.firestore
-        db.collection("recipes")
-            .get()
-            .addOnSuccessListener { result ->
-                for (doc in result) {
-                    Log.d("FirestoreTest", "${doc.id} => ${doc.data}")
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.w("FirestoreTest", "Error getting documents", e)
-            }
 
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            return
+        }
+
+        // ✅ Hook up logout using binding!
+        binding.logoutButton.setOnClickListener {
+            Log.d("AuthDebug", "Logout button clicked")
+            FirebaseAuth.getInstance().signOut()
+
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
+
+        val fab = findViewById<FloatingActionButton>(R.id.fabAddRecipe)
+        fab.setOnClickListener {
+            startActivity(Intent(this, AddRecipeActivity::class.java))
+        }
 
         // Set up RecyclerView
         recipeAdapter = RecipeAdapter(filteredRecipes)
@@ -120,12 +77,57 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun attachRecipesListener() {
+        val db = Firebase.firestore
+        recipesListener = db.collection("Recipes")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.e("FirestoreError", "Listen failed", e)
+                    return@addSnapshotListener
+                }
+                if (snapshot == null) return@addSnapshotListener
+
+                allRecipes.clear()
+                for (document in snapshot) {
+                    val recipe = Recipe(
+                        name = document.getString("name") ?: "",
+                        matchPercent = document.getLong("matchPercent")?.toInt() ?: 0,
+                        difficulty = document.getString("difficulty") ?: "",
+                        cookTime = document.getString("cookTime") ?: "",
+                        thumbnailResId = R.drawable.placeholder,
+                        cuisine = document.getString("cuisine") ?: "",
+                        ingredients = document.get("ingredients") as? List<String> ?: emptyList(),
+                        instructions = document.getString("instructions") ?: "",
+                        ratings = (document.get("ratings") as? List<Long>)?.map { it.toInt() } ?: emptyList()
+                    )
+                    allRecipes.add(recipe)
+                }
+
+                // Refresh UI
+                filterRecipes()
+                Log.d("RecipeDebug", "Realtime list size: ${allRecipes.size}")
+            }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        attachRecipesListener()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        recipesListener?.remove()
+        recipesListener = null
+    }
+
+
+
     private fun setupCuisineChips() {
         binding.chipGroupCuisine.removeAllViews()
         for (cuisine in cuisineTypes) {
             val chip = LayoutInflater.from(this).inflate(R.layout.item_chip, binding.chipGroupCuisine, false) as com.google.android.material.chip.Chip
             chip.text = cuisine
-            chip.isChecked = cuisine == selectedCuisine
+            chip.isChecked = cuisine.equals(selectedCuisine, ignoreCase = true)
             chip.setOnClickListener {
                 selectedCuisine = cuisine
                 filterRecipes()
@@ -135,12 +137,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun filterRecipes() {
-        val query = binding.editTextSearch.text.toString().trim().lowercase()
+        val tokens = parseQueryTokens(binding.editTextSearch.text?.toString())
         filteredRecipes = allRecipes.filter { recipe ->
-            val matchesCuisine = (selectedCuisine == "All" || recipe.cuisine == selectedCuisine)
-            val matchesQuery = query.isEmpty() || recipe.ingredients.any { it.contains(query) }
-            matchesCuisine && matchesQuery
+            // Cuisine match (case-insensitive)
+            val matchesCuisine = (selectedCuisine == "All" ||
+                    recipe.cuisine.equals(selectedCuisine, ignoreCase = true))
+
+            // Ingredient AND search (case-insensitive, substring match)
+            val ingredientsLower = recipe.ingredients.map { it.lowercase() }
+            val matchesIngredients = tokens.all { token ->
+                ingredientsLower.any { ing -> ing.contains(token) }
+            }
+
+            matchesCuisine && matchesIngredients
         }.toMutableList()
         recipeAdapter.updateList(filteredRecipes)
     }
+
+    private fun parseQueryTokens(text: String?): List<String> {
+        if (text.isNullOrBlank()) return emptyList()
+        return text.lowercase()
+            .replace(",", " ")        // allow comma or space separation
+            .split(" ")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+    }
+
+
+
 }
