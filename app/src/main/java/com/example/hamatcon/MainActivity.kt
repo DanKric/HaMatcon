@@ -22,8 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.Lifecycle
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.hamatcon.data.remote.mealdb.MealDbApi
-import com.example.hamatcon.data.remote.mealdb.MealDbImporter
 import kotlinx.coroutines.launch
 
 
@@ -54,11 +52,6 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         }
-
-        findViewById<Button>(R.id.btnSeed).setOnClickListener {
-            seedFromMealDb()
-        }
-
 
         // ✅ Hook up logout using binding!
         binding.logoutButton.setOnClickListener {
@@ -202,37 +195,10 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_seed -> {
-                seedFromMealDb()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-    private fun seedFromMealDb() {
-        Toast.makeText(this, "Seeding… please wait", Toast.LENGTH_SHORT).show()
-
-        val importer = MealDbImporter(
-            api = MealDbApi.service,
-            db = FirebaseFirestore.getInstance()
-        )
-        val categories = listOf("Beef", "Chicken", "Vegetarian", "Dessert")
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                lifecycleScope.launch {
-                    try {
-                        val count = importer.importCategories(categories, maxPerCategory = 25)
-                        Toast.makeText(this@MainActivity, "Seeded $count recipes", Toast.LENGTH_LONG).show()
-                    } catch (e: Exception) {
-                        Log.e("SeedDebug", "Seeding failed", e)
-                        Toast.makeText(this@MainActivity, "Seeding failed: ${e.message}", Toast.LENGTH_LONG).show()
-                    }
-                }
-
-            }
-        }
-    }
-
 
 }

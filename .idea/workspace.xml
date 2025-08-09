@@ -51,18 +51,15 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0422bcd9-07f6-4be2-9fe6-9ab06d86be0c" name="Changes" comment="Working with multisearch">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbApi.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbImporter.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbMapper.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbModels.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
+    <list default="true" id="0422bcd9-07f6-4be2-9fe6-9ab06d86be0c" name="Changes" comment="imported 100 recipes and changed the cuisines to countrys">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/MainActivity.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbApi.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbImporter.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbMapper.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbModels.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/hamatcon/data/remote/mealdb/MealDbService.kt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/menu/main_menu.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/menu/main_menu.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -221,12 +218,21 @@
       <option name="project" value="LOCAL" />
       <updated>1754749637909</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="imported 100 recipes and changed the cuisines to countrys">
+      <option name="closed" value="true" />
+      <created>1754752257974</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1754752257974</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Working with multisearch" />
-    <option name="LAST_COMMIT_MESSAGE" value="Working with multisearch" />
+    <MESSAGE value="imported 100 recipes and changed the cuisines to countrys" />
+    <option name="LAST_COMMIT_MESSAGE" value="imported 100 recipes and changed the cuisines to countrys" />
   </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">

@@ -27,20 +27,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSeed"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Seed DB"
-        app:icon="@android:drawable/ic_menu_add"
-        app:iconPadding="8dp"
-        app:iconGravity="textStart"
-        android:textAllCaps="false"
-        android:textColor="@color/teal_700"
-        app:iconTint="@color/teal_700"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBaseline_toBaselineOf="@id/logoutButton" />
 
     <!-- Search: rounded filled box with start icon -->
     <com.google.android.material.textfield.TextInputLayout
