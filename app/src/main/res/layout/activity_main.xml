@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,63 +9,128 @@
     android:padding="16dp"
     tools:context=".MainActivity">
 
-    <!-- Logout Button -->
-    <Button
+    <!-- Top row: Logout (left) + Seed (right) -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/logoutButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logout" />
+        android:text="LOGOUT"
+        app:icon="@android:drawable/ic_lock_power_off"
+        app:iconPadding="8dp"
+        app:iconGravity="textStart"
+        app:strokeColor="@color/teal_700"
+        app:strokeWidth="1dp"
+        app:rippleColor="@color/teal_700"
+        app:iconTint="@color/teal_700"
+        android:textColor="@color/teal_700"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Search Bar -->
-    <EditText
-        android:id="@+id/editTextSearch"
-        android:layout_width="match_parent"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSeed"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/logoutButton"
-        android:layout_marginTop="16dp"
-        android:hint="Enter ingredients..."
-        android:drawableStart="@android:drawable/ic_menu_search"
-        android:padding="12dp"
-        android:background="@drawable/search_bar_bg"
-        android:layout_marginBottom="12dp" />
+        android:text="Seed DB"
+        app:icon="@android:drawable/ic_menu_add"
+        app:iconPadding="8dp"
+        app:iconGravity="textStart"
+        android:textAllCaps="false"
+        android:textColor="@color/teal_700"
+        app:iconTint="@color/teal_700"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@id/logoutButton" />
 
-    <!-- Chips -->
+    <!-- Search: rounded filled box with start icon -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/searchInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:boxBackgroundColor="@color/black"
+        app:boxStrokeColor="@color/teal_700"
+        app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:hintTextColor="@color/teal_700"
+        app:boxCornerRadiusTopStart="24dp"
+        app:boxCornerRadiusTopEnd="24dp"
+        app:boxCornerRadiusBottomStart="24dp"
+        app:boxCornerRadiusBottomEnd="24dp"
+        app:layout_constraintTop_toBottomOf="@id/logoutButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter ingredients..."
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/darker_gray"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Cuisine chips: horizontal scroll with ChipGroup -->
     <HorizontalScrollView
         android:id="@+id/chipScroll"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/editTextSearch"
-        android:layout_marginBottom="12dp"
-        android:scrollbars="none">
+        android:layout_marginTop="12dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/searchInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupCuisine"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:paddingStart="2dp"
+            android:paddingEnd="2dp"
             app:singleSelection="true"
-            app:selectionRequired="false" />
+            app:selectionRequired="false">
+
+            <!-- Optional default 'All' chip (you can also add programmatically) -->
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipAll"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All"
+                app:chipBackgroundColor="@color/teal_700"
+                android:textColor="@android:color/white"/>
+        </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
-    <!-- Recipes List -->
+    <!-- Recipes list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewRecipes"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/chipScroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingBottom="8dp" />
+        android:paddingTop="4dp"
+        android:paddingBottom="88dp"
+        app:layout_constraintTop_toBottomOf="@id/chipScroll"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:listitem="@layout/item_recipe" />
 
-
+    <!-- Add Recipe FAB -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddRecipe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"
         android:contentDescription="Add Recipe"
         app:srcCompat="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/teal_700" />
+        app:backgroundTint="@color/teal_700"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="16dp" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

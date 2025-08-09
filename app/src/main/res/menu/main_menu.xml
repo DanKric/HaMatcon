@@ -6,4 +6,10 @@
         android:title="Logout"
         android:icon="@android:drawable/ic_lock_power_off"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_seed"
+        android:title="Seed (MealDB)"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="never" />
 </menu>
