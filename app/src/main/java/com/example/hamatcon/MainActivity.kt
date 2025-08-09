@@ -12,17 +12,20 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.auth.FirebaseAuth
 import android.content.Intent
 import android.util.Log
-import android.widget.Button
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.view.Menu
 import android.view.MenuItem
+import com.example.hamatcon.ui.HomeFragment
+import com.example.hamatcon.ui.MyRecipesFragment
+import com.example.hamatcon.ui.ProfileFragment
+
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.Lifecycle
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import com.example.hamatcon.logic.RecipeAutofill
 
 
 
@@ -35,6 +38,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recipeAdapter: RecipeAdapter
     private val allRecipes = mutableListOf<Recipe>()
 
+    private lateinit var homeFragment: HomeFragment
+    private lateinit var myRecipesFragment: MyRecipesFragment
+    private lateinit var profileFragment: ProfileFragment
 
     private var filteredRecipes = allRecipes.toMutableList()
     private var selectedCuisine = "All"
@@ -52,6 +58,24 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         }
+
+        binding.btnBackfill.visibility = View.VISIBLE
+
+        binding.btnBackfill.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    val updated = RecipeAutofill.backfillSeededTimeAndDifficulty(
+                        db = FirebaseFirestore.getInstance(),
+                        ownerUidFilter = "seed"
+                    )
+                    Toast.makeText(this@MainActivity, "Autofilled $updated recipes", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    Log.e("Autofill", "Failed", e)
+                    Toast.makeText(this@MainActivity, "Autofill failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
 
         // ✅ Hook up logout using binding!
         binding.logoutButton.setOnClickListener {
@@ -83,6 +107,8 @@ class MainActivity : AppCompatActivity() {
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+        initBottomNav()
+
     }
 
     private fun attachRecipesListener() {
@@ -200,5 +226,55 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
+    private fun initBottomNav() {
+        // Default = Home visible, fragments hidden
+        setHomeMode(true)
+
+        // If you want to attach a fragment for Home too, you can,
+        // but we’ll keep the Activity UI as Home for now.
+
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    setHomeMode(true)
+                    true
+                }
+                R.id.nav_my_recipes -> {
+                    setHomeMode(false)
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, MyRecipesFragment())
+                        .commit()
+                    true
+                }
+                R.id.nav_profile -> {
+                    setHomeMode(false)
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragmentContainer, ProfileFragment())
+                        .commit()
+                    true
+                }
+                else -> false
+            }
+        }
+
+        // Make sure Home is selected initially
+        binding.bottomNav.selectedItemId = R.id.nav_home
+    }
+
+
+    private fun setHomeMode(isHome: Boolean) {
+        // Home UI (Activity-owned views)
+        binding.searchInputLayout.visibility = if (isHome) View.VISIBLE else View.GONE
+        binding.chipScroll.visibility = if (isHome) View.VISIBLE else View.GONE
+        binding.recyclerViewRecipes.visibility = if (isHome) View.VISIBLE else View.GONE
+        binding.fabAddRecipe.visibility = if (isHome) View.VISIBLE else View.GONE
+        binding.btnBackfill.visibility = if (isHome) View.VISIBLE else View.GONE
+        binding.logoutButton.visibility = if (isHome) View.VISIBLE else View.GONE
+
+        // Fragment container
+        binding.fragmentContainer.visibility = if (isHome) View.GONE else View.VISIBLE
+    }
+
 
 }

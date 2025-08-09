@@ -18,6 +18,11 @@
     <!--  New light mode colors -->
     <color name="light_background">#F2FDFB</color>
 
+    <!-- Bottom nav palette -->
+    <color name="bottom_nav_bg">@color/card_background</color>   <!-- or #262626 -->
+    <color name="bottom_nav_active">@color/teal_700</color>      <!-- your teal -->
+    <color name="bottom_nav_inactive">#9AA0A6</color>            <!-- soft gray -->
+    <color name="bottom_nav_ripple">#1A02ED74</color>            <!-- 10% teal -->
 
 
 </resources>
