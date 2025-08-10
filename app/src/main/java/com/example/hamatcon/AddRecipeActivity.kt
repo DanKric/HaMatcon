@@ -12,65 +12,135 @@ class AddRecipeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddRecipeBinding
 
+    private val db by lazy { Firebase.firestore }
+    private val uid by lazy { FirebaseAuth.getInstance().currentUser?.uid }
+
+    private var isEditMode = false
+    private var recipeId: String? = null
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAddRecipeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.buttonSubmit.setOnClickListener {
-            val name = binding.editName.text.toString().trim()
-            val cuisine = binding.editCuisine.text.toString().trim()
-            val cookTime = binding.editCookTime.text.toString().trim()
-            val difficulty = binding.editDifficulty.text.toString().trim()
+        // Detect edit mode
+        isEditMode = intent.getStringExtra("mode") == "edit"
+        recipeId = intent.getStringExtra("recipeId")
 
-            // Normalize ingredients: split, trim, lowercase, dedupe, drop empties
-            val ingredients = binding.editIngredients.text.toString()
-                .split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-                .map { it.lowercase() }
-                .distinct()
+        if (isEditMode && !recipeId.isNullOrBlank()) {
+            title = "Edit Recipe"
+            binding.buttonSubmit.text = "Save"
 
-            val instructions = binding.editInstructions.text.toString().trim()
+            // Prefill from Intent extras (fast path)
+            binding.editName.setText(intent.getStringExtra("name") ?: "")
+            binding.editCuisine.setText(intent.getStringExtra("cuisine") ?: "")
+            binding.editCookTime.setText(intent.getStringExtra("cookTime") ?: "")
+            binding.editDifficulty.setText(intent.getStringExtra("difficulty") ?: "")
+            val ingFromExtras = intent.getStringArrayListExtra("ingredients") ?: arrayListOf()
+            if (ingFromExtras.isNotEmpty()) {
+                binding.editIngredients.setText(ingFromExtras.joinToString(", "))
+            }
+            binding.editInstructions.setText(intent.getStringExtra("instructions") ?: "")
 
-            // Require a logged-in user for creation
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
-            if (uid == null) {
-                Toast.makeText(this, "Please log in again.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            // Optional: if extras were partial or stale, load latest from Firestore
+            if (binding.editName.text.isNullOrBlank()) {
+                loadRecipeFromFirestore(recipeId!!)
             }
 
-            if (name.isEmpty() || cuisine.isEmpty() || cookTime.isEmpty() || ingredients.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            // Lock fields you don't want to change in edit mode (optional):
+            // binding.editCuisine.isEnabled = false
+            // binding.editDifficulty.isEnabled = false
+        } else {
+            title = "Add Recipe"
+            binding.buttonSubmit.text = "Add"
+        }
 
-            val recipe = hashMapOf(
-                "name" to name,
-                "cuisine" to cuisine,
-                "cookTime" to cookTime,
-                "difficulty" to difficulty,
-                "ingredients" to ingredients,
-                "instructions" to instructions,
+        binding.buttonSubmit.setOnClickListener { onSubmit() }
+    }
+
+    private fun loadRecipeFromFirestore(id: String) {
+        db.collection("Recipes").document(id).get()
+            .addOnSuccessListener { doc ->
+                if (!doc.exists()) return@addOnSuccessListener
+                binding.editName.setText(doc.getString("name") ?: "")
+                binding.editCuisine.setText(doc.getString("cuisine") ?: "")
+                binding.editCookTime.setText(doc.getString("cookTime") ?: "")
+                binding.editDifficulty.setText(doc.getString("difficulty") ?: "")
+                val ings = (doc.get("ingredients") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
+                if (ings.isNotEmpty()) binding.editIngredients.setText(ings.joinToString(", "))
+                binding.editInstructions.setText(doc.getString("instructions") ?: "")
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Failed to load: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun onSubmit() {
+        // Basic auth + validation
+        if (uid == null) {
+            Toast.makeText(this, "Please log in again.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val name = binding.editName.text.toString().trim()
+        val cuisine = binding.editCuisine.text.toString().trim()
+        val cookTime = binding.editCookTime.text.toString().trim()
+        val difficulty = binding.editDifficulty.text.toString().trim()
+        val instructions = binding.editInstructions.text.toString().trim()
+
+        // Normalize ingredients: split on comma/newline/semicolon
+        val ingredients = binding.editIngredients.text.toString()
+            .split(",", "\n", ";")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map { it.lowercase() }
+            .distinct()
+
+        if (name.isEmpty() || cuisine.isEmpty() || cookTime.isEmpty() || ingredients.isEmpty()) {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val data = mapOf(
+            "name" to name,
+            "cuisine" to cuisine,
+            "cookTime" to cookTime,
+            "difficulty" to difficulty,
+            "ingredients" to ingredients,
+            "instructions" to instructions
+        )
+
+        if (isEditMode && !recipeId.isNullOrBlank()) {
+            // UPDATE existing doc (do not touch ownerUid / favoritesCount / ratings)
+            db.collection("Recipes").document(recipeId!!)
+                .update(data)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Recipe updated", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Update failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+        } else {
+            // CREATE new doc
+            val newData = data + mapOf(
                 "ownerUid" to uid,
-
-                // helpful defaults
-                "imageUrl" to "",                 // to be set when we add uploads
-                "favoritesCount" to 0,            // used by Favorites logic
-                "ratings" to listOf<Int>(),       // keep existing shape
-                "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+                "favoritesCount" to 0,
+                "ratings" to emptyList<Int>(),
+                "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
+                "imageUrl" to "" // to be filled when image upload is added
             )
-
-            Firebase.firestore.collection("Recipes")
-                .add(recipe)
+            db.collection("Recipes")
+                .add(newData)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Recipe added!", Toast.LENGTH_SHORT).show()
                     finish()
                 }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
         }
-
     }
 }

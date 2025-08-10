@@ -6,7 +6,7 @@
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:cardBackgroundColor="@color/dark_background">
+    app:cardBackgroundColor="#0D1B2A">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,9 +23,9 @@
             android:scaleType="centerCrop"
             android:src="@drawable/placeholder"
             android:contentDescription="Recipe image"
-            android:background="@android:color/darker_gray" />
+            android:background="#1B263B" />
 
-        <!-- Recipe Details (takes remaining space) -->
+        <!-- Recipe Details -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -42,22 +42,20 @@
                 android:textStyle="bold"
                 android:textSize="16sp" />
 
+            <!-- Smaller RatingBar -->
             <RatingBar
                 android:id="@+id/ratingBar"
+                style="?android:attr/ratingBarStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:numStars="5"
                 android:stepSize="0.5"
                 android:isIndicator="true"
+                android:progressTint="#FFD700"
+                android:secondaryProgressTint="#FFD700"
                 android:layout_marginTop="4dp" />
 
-            <TextView
-                android:id="@+id/textViewMatchPercent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/chip_bg_selector"
-                android:textSize="20sp"
-                android:layout_marginTop="4dp" />
+            <!-- Removed textViewMatchPercent -->
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -70,7 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:layout_marginEnd="12dp" />
 
                 <TextView
@@ -78,18 +76,48 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/white"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Heart on the RIGHT -->
-        <ImageButton
-            android:id="@+id/btnFavorite"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="Favorite"
-            android:src="@drawable/ic_favorite_border"
-            android:padding="8dp" />
+        <!-- Heart + Count -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <ImageButton
+                android:id="@+id/btnFavorite"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Favorite"
+                android:src="@drawable/ic_favorite_border"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/textViewFavoritesCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:text="0" />
+
+            <!-- Owner menu (⋮) — hidden by default; shown in My Recipes only -->
+            <ImageButton
+                android:id="@+id/btnOverflow"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="More"
+                android:src="@drawable/ic_more_vert"
+                android:visibility="gone"
+                app:tint="@android:color/white" />
+
+
+
+        </LinearLayout>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

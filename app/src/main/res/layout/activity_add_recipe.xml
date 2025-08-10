@@ -1,78 +1,213 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#0D1B2A"
     android:padding="16dp"
-    android:background="@color/dark_background">
+    android:fillViewport="true">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:showDividers="none">
 
-        <EditText
-            android:id="@+id/editName"
-            android:hint="Recipe Name"
+        <!-- Name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recipe Name"
             android:textColor="@android:color/white"
-            android:textColorHint="#B0B0B0"
-            android:backgroundTint="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
 
-        <EditText
-            android:id="@+id/editCuisine"
-            android:hint="Cuisine"
-            android:textColor="@android:color/white"
-            android:textColorHint="#B0B0B0"
-            android:backgroundTint="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/editCookTime"
-            android:hint="Cook Time"
-            android:textColor="@android:color/white"
-            android:textColorHint="#B0B0B0"
-            android:backgroundTint="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/editDifficulty"
-            android:hint="Difficulty"
-            android:textColor="@android:color/white"
-            android:textColorHint="#B0B0B0"
-            android:backgroundTint="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/editIngredients"
-            android:hint="Ingredients (comma separated)"
-            android:textColor="@android:color/white"
-            android:textColorHint="#B0B0B0"
-            android:backgroundTint="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <EditText
-            android:id="@+id/editInstructions"
-            android:hint="Instructions"
-            android:textColor="@android:color/white"
-            android:textColorHint="#B0B0B0"
-            android:backgroundTint="@android:color/white"
-            android:minLines="4"
-            android:gravity="top"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/buttonSubmit"
-            android:text="Submit"
-            android:textColor="@android:color/white"
-            android:backgroundTint="@color/teal_700"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"/>
+            app:hintEnabled="false"
+            app:boxBackgroundColor="#1B263B"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g., Shakshuka"
+                android:textColor="@android:color/white"
+                android:textColorHint="#B0C4DE"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Cuisine -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cuisine"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintEnabled="false"
+            app:boxBackgroundColor="#1B263B"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editCuisine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g., Mediterranean"
+                android:textColor="@android:color/white"
+                android:textColorHint="#B0C4DE"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Cook Time -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cook Time (minutes)"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintEnabled="false"
+            app:boxBackgroundColor="#1B263B"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editCookTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:hint="e.g., 45"
+                android:textColor="@android:color/white"
+                android:textColorHint="#B0C4DE"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Difficulty -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Difficulty"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintEnabled="false"
+            app:boxBackgroundColor="#1B263B"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editDifficulty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g., Easy / Medium / Hard"
+                android:textColor="@android:color/white"
+                android:textColorHint="#B0C4DE"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Ingredients -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ingredients"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintEnabled="false"
+            app:boxBackgroundColor="#1B263B"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editIngredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g., eggs, tomatoes, onion"
+                android:inputType="textMultiLine"
+                android:minLines="3"
+                android:textColor="@android:color/white"
+                android:textColorHint="#B0C4DE"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Instructions -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Instructions"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:hintEnabled="false"
+            app:boxBackgroundColor="#1B263B"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editInstructions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="4"
+                android:hint="Step-by-step..."
+                android:inputType="textMultiLine"
+                android:textColor="@android:color/white"
+                android:textColorHint="#B0C4DE"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Submit Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Add Recipe"
+            android:backgroundTint="#415A77"
+            android:textColor="@android:color/white"
+            app:cornerRadius="16dp"/>
+
     </LinearLayout>
 </ScrollView>

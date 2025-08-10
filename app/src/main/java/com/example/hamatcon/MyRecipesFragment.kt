@@ -1,15 +1,16 @@
 package com.example.hamatcon
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import android.widget.TextView
 
 class MyRecipesFragment : Fragment(R.layout.fragment_my_recipes) {
 
@@ -23,12 +24,51 @@ class MyRecipesFragment : Fragment(R.layout.fragment_my_recipes) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val rv = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerMy)
         rv.layoutManager = LinearLayoutManager(requireContext())
-        adapter = RecipeAdapter(mutableListOf())
+
+        adapter = RecipeAdapter(mutableListOf()).apply {
+            setShowFavoritesCount(true)  // show ♥ N here
+            setShowOwnerMenu(true)       // show ⋮ menu only in My Recipes
+        }
         rv.adapter = adapter
 
-        // Allow toggling favorites here too (remove if you want read‑only)
+        // Allow toggling favorites here too (optional)
         adapter.onFavoriteClick = { recipeId, isCurrentlyFav ->
             toggleFavorite(recipeId, isCurrentlyFav)
+        }
+
+        // Owner actions
+        adapter.onEditClick = { recipe ->
+            // Reuse AddRecipeActivity as editor (adjust if you have a dedicated Edit screen)
+            val intent = Intent(requireContext(), AddRecipeActivity::class.java).apply {
+                putExtra("mode", "edit")
+                putExtra("recipeId", recipe.id)
+                putExtra("name", recipe.name)
+                putExtra("difficulty", recipe.difficulty)
+                putExtra("cookTime", recipe.cookTime)
+                putStringArrayListExtra("ingredients", ArrayList(recipe.ingredients))
+                putExtra("instructions", recipe.instructions)
+                putExtra("cuisine", recipe.cuisine)
+                // If you later add imageUrl to Recipe, pass it here as well
+            }
+            startActivity(intent)
+        }
+
+        adapter.onDeleteClick = { recipe ->
+            AlertDialog.Builder(requireContext())
+                .setTitle("Delete recipe")
+                .setMessage("Delete “${recipe.name}”? This can’t be undone.")
+                .setPositiveButton("Delete") { _, _ ->
+                    Firebase.firestore.collection("Recipes").document(recipe.id)
+                        .delete()
+                        .addOnSuccessListener {
+                            android.widget.Toast.makeText(requireContext(), "Deleted", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            android.widget.Toast.makeText(requireContext(), "Delete failed: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 
@@ -65,15 +105,14 @@ class MyRecipesFragment : Fragment(R.layout.fragment_my_recipes) {
         val db = Firebase.firestore
         recipesListener?.remove()
 
-        // Primary query: ownerUid == uid ORDER BY name (uses composite index)
+        // Primary query: ownerUid == uid ORDER BY name
         recipesListener = db.collection("Recipes")
             .whereEqualTo("ownerUid", uid)
             .orderBy("name", com.google.firebase.firestore.Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     android.util.Log.w("MyRecipes", "Listen failed (with orderBy): ${e.message}", e)
-
-                    // Fallback: try again WITHOUT orderBy so you can see results while we diagnose
+                    // Fallback without orderBy
                     db.collection("Recipes")
                         .whereEqualTo("ownerUid", uid)
                         .addSnapshotListener { snap2, e2 ->
@@ -97,7 +136,7 @@ class MyRecipesFragment : Fragment(R.layout.fragment_my_recipes) {
         snapshot?.forEach { doc ->
             val r = Recipe(
                 name = doc.getString("name") ?: "",
-                matchPercent = doc.getLong("matchPercent")?.toInt() ?: 0,
+                matchPercent = doc.getLong("matchPercent")?.toInt() ?: 0, // safe to keep even if unused in UI
                 difficulty = doc.getString("difficulty") ?: "",
                 cookTime = doc.getString("cookTime") ?: "",
                 thumbnailResId = R.drawable.placeholder,
@@ -105,7 +144,8 @@ class MyRecipesFragment : Fragment(R.layout.fragment_my_recipes) {
                 ingredients = doc.get("ingredients") as? List<String> ?: emptyList(),
                 instructions = doc.getString("instructions") ?: "",
                 ratings = (doc.get("ratings") as? List<Long>)?.map { it.toInt() } ?: emptyList(),
-                id = doc.id
+                id = doc.id,
+                favoritesCount = doc.getLong("favoritesCount")?.toInt() ?: 0
             )
             android.util.Log.d("MyRecipes", "Bind: ${r.name} (${r.id})")
             myRecipes.add(r)
@@ -113,12 +153,9 @@ class MyRecipesFragment : Fragment(R.layout.fragment_my_recipes) {
         adapter.updateList(myRecipes)
         android.util.Log.d("MyRecipes", "Adapter count=${adapter.itemCount}")
 
-
         val empty = view?.findViewById<TextView>(R.id.emptyText)
         empty?.visibility = if (myRecipes.isEmpty()) View.VISIBLE else View.GONE
-
     }
-
 
     private fun toggleFavorite(recipeId: String, currentlyFav: Boolean) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return

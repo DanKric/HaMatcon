@@ -10,14 +10,11 @@ data class Recipe(
     val ingredients: List<String> = emptyList(),
     val instructions: String = "",
     val ratings: List<Int> = emptyList(),
-    val id: String = ""           // ✅ add this
-)
-{
+    val id: String = "",
+    val favoritesCount: Int = 0,
+    val imageUrl: String = ""
+) {
     fun averageRating(): Float {
-        return if (ratings.isNotEmpty()) {
-            ratings.average().toFloat()
-        } else {
-            0f
-        }
+        return if (ratings.isNotEmpty()) ratings.average().toFloat() else 0f
     }
 }

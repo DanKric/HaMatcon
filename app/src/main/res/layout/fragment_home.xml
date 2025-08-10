@@ -43,7 +43,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Search -->
+    <!-- Search field -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchInputLayout"
         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -61,18 +61,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/editTextSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter ingredients..."
-            android:imeOptions="actionSearch"
+            android:imeOptions="actionDone"
             android:inputType="text"
             android:textColor="@android:color/black"
             android:textColorHint="@android:color/darker_gray"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"/>
     </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Selected ingredient chips (moved OUTSIDE the TextInputLayout) -->
+    <HorizontalScrollView
+        android:id="@+id/selectedChipsScroll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/searchInputLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSelected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            app:singleLine="true"
+            app:singleSelection="false"/>
+    </HorizontalScrollView>
 
     <!-- Cuisine chips -->
     <HorizontalScrollView
@@ -81,7 +101,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/searchInputLayout"
+        app:layout_constraintTop_toBottomOf="@id/selectedChipsScroll"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -92,17 +112,8 @@
             android:paddingStart="2dp"
             android:paddingEnd="2dp"
             app:singleSelection="true"
-            app:selectionRequired="false">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipAll"
-                style="@style/Widget.MaterialComponents.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="All"
-                app:chipBackgroundColor="@color/teal_700"
-                android:textColor="@android:color/white"/>
-        </com.google.android.material.chip.ChipGroup>
+            app:selectionRequired="false"
+            tools:ignore="MissingConstraints"/>
     </HorizontalScrollView>
 
     <!-- Recipes list -->
