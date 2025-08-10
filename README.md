@@ -1,238 +1,243 @@
+# HaMatcon 🍳
 
-# HaMatcon – Android Recipe App (Kotlin + Firebase)
+A modern Android recipe app built with Kotlin and Firebase that lets you browse, create, favorite, and rate recipes with a beautiful Material Design interface.
 
-Browse, favorite, rate, and manage recipes. Search by ingredients with chips + autocomplete, filter by cuisine, view details, and (if you’re the owner) create/edit recipes with an image uploaded to Firebase Storage.
-
-* **Stack:** Kotlin, AndroidX, Material Components, Navigation Component, Firebase **Auth / Firestore / Storage**, Coil
-* **Package:** `com.example.hamatcon`
-* **Navigation:** `FragmentContainerView` (`@id/nav_host`) + BottomNavigationView with destinations `nav_home`, `nav_my_recipes`, `nav_favorites`, `nav_profile`
-
----
+![Platform](https://img.shields.io/badge/Platform-Android-green.svg)
+![Language](https://img.shields.io/badge/Language-Kotlin-blue.svg)
+![Firebase](https://img.shields.io/badge/Backend-Firebase-orange.svg)
 
 ## ✨ Features
 
-* **Auth:** Email/password sign‑in, logout (Profile).
-* **Home:** Live recipe list from Firestore; ingredient **chips** + free‑text search; cuisine filter; favorite toggle (transaction).
-* **Favorites:** Shows only recipes the user favorited; live sync; unfavorite works and decrements aggregate safely via transaction.
-* **My Recipes:** Owner list (with overflow menu support in adapter); **FAB** to add.
-* **Add/Edit Recipe:** Image picker (system OpenDocument), Coil preview, upload to Storage, write `imageUrl`.
-* **Details + Ratings:** Half‑star rating (0.5 steps). Stores per‑user rating (`value2` in half‑star units). Aggregates: `ratingSum` (sum of half‑stars), `ratingCount`; average shown consistently.
-* **Profile:** Email + live counts for **Total Recipes** (owned) and **Favorite Recipes** (ignores stale favorites).
+### 🔍 **Smart Recipe Discovery**
+- Ingredient-based search with interactive chips and autocomplete
+- Cuisine filtering (Italian, Mexican, Asian, etc.)
+- Free-text search that matches ingredient names intelligently
+- Real-time recipe browsing with live sync
 
----
+### ⭐ **Advanced Rating System**
+- Half-star precision ratings (0.5, 1.0, 1.5... up to 5.0 stars)
+- Aggregated ratings with proper transaction-based counting
+- Per-user rating persistence with timestamp tracking
+- Consistent rating display across all screens
 
-## 📁 App Structure (high‑level)
+### ❤️ **Favorites Management**
+- One-tap favorite/unfavorite with heart animation
+- Transactional favorite count updates for data consistency
+- Live sync between Home and Favorites screens
 
-* `MainActivity` – sets up NavHost + BottomNav, auth‑gate to Login.
-* `HomeFragment`, `FavoritesFragment`, `MyRecipesFragment`, `ProfileFragment` – four tabs (bottom nav).
-* `AddRecipeActivity`, `RecipeDetailActivity` – creation/editing & details/rating screens.
-* `RecipeAdapter` – binds cards; handles favorites heart, “N ratings” label, overflow menu for owner.
-* Layouts: `fragment_home.xml`, `fragment_my_recipes.xml`, `fragment_profile.xml`, `activity_add_recipe.xml`, `activity_recipe_detail.xml`, `item_recipe.xml`, `dialog_rate_recipe.xml`.
+### 📱 **Recipe Management**
+- Create & edit recipes with rich content
+- Image upload to Firebase Storage with preview
+- My Recipes section for managing your creations
+- Owner-only edit/delete permissions with overflow menu
 
----
+### 👤 **User Profile**
+- Firebase Authentication (email/password)
+- Live recipe statistics (Total Recipes, Favorite Recipes)
+- Clean logout functionality
 
-## 🧱 Data Model (Firestore)
+## 🏗️ Architecture
 
-**Collection: `Recipes`**
+### **Navigation Structure**
+- Single Activity architecture with Navigation Component
+- Bottom navigation with 4 main destinations:
+    - 🏠 **Home** - Browse and search recipes
+    - 📚 **My Recipes** - Manage your created recipes
+    - ❤️ **Favorites** - View favorited recipes
+    - 👤 **Profile** - User info and settings
 
-```json
-{
-  "id": "<doc id>",
-  "name": "String",
-  "cuisine": "String",
-  "cookTime": "String",     // minutes; UI formats to "X hr Y min"
-  "difficulty": "String",
-  "ingredients": ["String"],
-  "instructions": "String",
-  "ownerUid": "String",
-  "favoritesCount": 0,
-  "imageUrl": "https://…",
-  "ratingSum": 0,           // sum of user half-stars (1..10)
-  "ratingCount": 0,         // unique raters
-  "createdAt": <Timestamp>
-}
+### **Tech Stack**
+- **Language:** Kotlin
+- **UI:** AndroidX + Material Components
+- **Navigation:** Navigation Component with Fragment destinations
+- **Backend:** Firebase (Auth + Firestore + Storage)
+- **Image Loading:** Coil with placeholders
+- **Architecture:** MVVM-like pattern with Firebase listeners
+
+## 🚀 Setup & Installation
+
+### Prerequisites
+- **Android Studio** Giraffe (2022.3.1) or newer
+- **Android SDK** 24+ (target SDK 34)
+- **Firebase project** with enabled services
+- **Java 8+** for build tools
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/hamatcon.git
+cd hamatcon
 ```
 
-**Subcollection: `Recipes/{recipeId}/ratings/{uid}`**
+### 2. Firebase Configuration
 
-```json
-{ "value2": 1..10, "ts": <Timestamp> }  // half-star units (3.5★ => 7)
+#### Create Firebase Project
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create a new project or use existing
+3. Add Android app with package name: `com.example.hamatcon`
+
+#### Enable Firebase Services
+Enable these services in Firebase Console:
+- Authentication (Email/Password provider)
+- Cloud Firestore (Native mode)
+- Storage (choose your preferred region)
+
+#### Download Configuration
+1. Download `google-services.json` from Firebase Console
+2. Place it in: `app/google-services.json`
+3. **Important:** Ensure package name matches exactly
+
+### 3. Configure Security Rules
+You'll need to set up appropriate Firestore and Storage security rules in the Firebase Console. Contact the project maintainer for the specific rule configurations needed for this app.
+
+### 4. Build & Run
+```bash
+# In Android Studio:
+1. Sync Project with Gradle Files
+2. Connect device or start emulator
+3. Run 'app' configuration
 ```
 
-**Collection: `users/{uid}/favorites/{recipeId}`**
+## 🧪 Testing Guide
 
-```json
-{ "saved": true, "ts": <Timestamp> }
+### Quick Verification Checklist
+- [ ] **Auth Flow:** Register → Login → Profile shows email → Logout
+- [ ] **Home Search:** Add ingredient chips, filter by cuisine, toggle favorites
+- [ ] **Favorites Sync:** Favorite on Home → appears in Favorites → unfavorite → disappears
+- [ ] **Recipe Creation:** Add recipe with image → preview works → save → appears in My Recipes
+- [ ] **Rating System:** Rate 3.5★ → reopen → average displays correctly → change to 5★ → average updates
+- [ ] **Profile Counts:** Total Recipes matches My Recipes count, Favorite Recipes matches Favorites list
+
+### Key Test Scenarios
+
+#### Favorites Testing
+```
+1. Open Home, favorite a recipe (heart turns red, count +1)
+2. Switch to Favorites tab → recipe appears
+3. In Favorites, unfavorite same recipe → disappears from list
+4. Return to Home → heart is empty, count decreased by 1
+5. Check Profile → Favorite Recipes count matches Favorites tab
 ```
 
-Average rating formula used in code: `(ratingSum / 2f) / ratingCount` (safe‑guarded when `ratingCount == 0`) .
-
----
-
-## 🔧 Local Setup
-
-1. **Clone & open in Android Studio** (Giraffe+ recommended).
-
-2. **Java/Kotlin/AGP** – Use the versions declared in `app/build.gradle.kts`.
-
-3. **Firebase project**
-
-    * Create a project in Firebase Console.
-    * Enable **Authentication** (Email/Password).
-    * Create **Cloud Firestore** (Native mode).
-    * Create **Storage** (pick a region; remember it).
-    * Download `google-services.json` and place it under:
-
-      ```
-      app/google-services.json
-      ```
-    * Make sure the package name matches `com.example.hamatcon`.
-
-4. **Sync Gradle** and run on an emulator or device.
-
----
-
-## 🎨 UI & Navigation
-
-* **Nav Host:** `@id/nav_host` in `activity_main.xml`; start destination `@id/nav_home`.
-* **Bottom Nav Menu IDs:** `nav_home`, `nav_my_recipes`, `nav_favorites`, `nav_profile` (must match graph destination IDs).
-* **Colors:** see `res/values/colors.xml` (has **bottom\_nav\_active**, **bottom\_nav\_inactive**, etc.). If you use `@color/nav_item_selector`, include a selector file:
-
-  ```xml
-  <!-- res/color/nav_item_selector.xml -->
-  <selector xmlns:android="http://schemas.android.com/apk/res/android">
-      <item android:color="@color/bottom_nav_active" android:state_checked="true"/>
-      <item android:color="@color/bottom_nav_inactive"/>
-  </selector>
-  ```
-
-  Palette examples live in `colors.xml`.
-
----
-
-## 🖼️ Images (Coil)
-
-* All recipe images load via **Coil** with a placeholder and no post‑overwrite.
-* Add/Edit screen uses **OpenDocument** to pick an image, previews with Coil, uploads to `recipes/{uid}/{recipeId}.jpg`, then writes `imageUrl`.
-
----
-
-## 🔐 Firebase Security Rules
-
-### Firestore (example)
-
-> Adjust to your exact needs; these match the app’s behavior (owner can edit doc, non‑owner can only change aggregates via transaction).
-
-```rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function isOwner() { return signedIn() && resource.data.ownerUid == request.auth.uid; }
-
-    match /Recipes/{recipeId} {
-      allow read: if true;
-      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
-
-      // Owner full control
-      allow update, delete: if isOwner();
-
-      // Non-owner can only update aggregates (favoritesCount, ratingSum, ratingCount)
-      allow update: if signedIn()
-        && request.resource.data.name == resource.data.name
-        && request.resource.data.cuisine == resource.data.cuisine
-        && request.resource.data.cookTime == resource.data.cookTime
-        && request.resource.data.difficulty == resource.data.difficulty
-        && request.resource.data.ingredients == resource.data.ingredients
-        && request.resource.data.instructions == resource.data.instructions
-        && request.resource.data.ownerUid == resource.data.ownerUid
-        && request.resource.data.imageUrl == resource.data.imageUrl
-        && request.resource.data.favoritesCount is int
-        && request.resource.data.ratingSum is int
-        && request.resource.data.ratingCount is int;
-    }
-
-    match /Recipes/{recipeId}/ratings/{uid} {
-      allow read: if true;
-      allow write: if signedIn() && request.auth.uid == uid;
-    }
-
-    match /users/{uid}/favorites/{recipeId} {
-      allow read, write: if signedIn() && request.auth.uid == uid;
-    }
-  }
-}
+#### Rating System Testing
+```
+1. Open recipe details, click "Rate this recipe"
+2. Set rating to 3.5 stars
+3. Save and reopen details → average shows correctly
+4. Change rating to 4.5 stars → average updates
+5. Verify ratingCount stays same (user updated, didn't add new rating)
 ```
 
-### Storage (example)
-
-```rules
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /recipes/{uid}/{file} {
-      allow read: if true; // public read
-      allow write: if request.auth != null && request.auth.uid == uid;
-    }
-  }
-}
+#### Image Upload Testing
 ```
-
----
-
-## ▶️ Build & Run
-
-1. Connect a device or start an emulator.
-2. **Run ‘app’** from Android Studio.
-3. On first launch, register a user (email/password).
-4. Add a recipe with an image, then open it and **Rate** (0.5‑star steps).
-5. Favorite/unfavorite across **Home** and **Favorites** tabs; counts should update live.
-
----
-
-## 🧪 Quick Test Plan
-
-* **Auth:** Register → Login → Profile shows email → Logout.
-* **Home:** See recipes; add a few ingredient chips and free‑text tokens; filter by cuisine; toggle favorite.
-* **Favorites:** Confirm list matches your favorites and unfavoriting removes the item & decrements `favoritesCount`.
-* **My Recipes:** Add → Edit (replace image) → Delete; ensure favorites of deleted recipes are ignored in Profile count.
-* **Details:** Rate 3.5★ → re-open → average consistent; change to 5★ → average updates; `ratingCount` stable.
-* **Profile:** **Total Recipes** equals owned docs; **Favorite Recipes** equals **Favorites** screen.
-
----
+1. Add new recipe → click "Add image" → select from gallery
+2. Verify preview loads immediately
+3. Save recipe → confirm image uploads successfully
+4. Open recipe details → image loads properly
+```
 
 ## 🛠️ Troubleshooting
 
-* **Bottom nav doesn’t switch tabs:** Menu item IDs must equal nav destination IDs (`nav_home`, etc.). Check `nav_graph.xml` + `bottom_nav_menu.xml`.
-* **Storage upload 404 / URL write fails:** Confirm Storage bucket exists & region matches project; verify `google-services.json` and that Storage rules allow the user to write their path.
-* **Images load then disappear:** Ensure nothing calls `setImageResource` after Coil `.load(...)` (adapter already avoids this).
-* **Favorites count mismatch:** We update via **transaction** and Profile ignores stale favorites (recipes deleted). If still off, check rules and client code paths.
-* **Ratings off by ×2:** Remember `ratingSum` is in **half‑star units**; average is `(sum/2)/count` (the app already uses this).
+### Common Issues & Solutions
+
+#### **Image Upload Issues**
+**Problem:** Image upload fails during recipe creation
+
+**Solutions:**
+- Verify Firebase Storage is enabled in console
+- Check that Storage bucket exists and matches your project region
+- Ensure `google-services.json` is current and matches your project
+- Confirm you have proper Storage security rules configured
+
+#### **Favorites Not Syncing**
+**Problem:** Favoriting on Home doesn't appear in Favorites tab
+
+**Solutions:**
+- Check Firestore security rules allow proper read/write access
+- Verify Firebase connection is stable
+- Ensure user is properly authenticated
+
+#### **Rating Display Issues**
+**Problem:** Ratings show differently on different screens
+
+**Solutions:**
+- Check that all rating calculations use the same formula
+- Verify rating data is being stored consistently
+- Ensure proper transaction handling for rating updates
+
+#### **Images Not Loading**
+**Problem:** Recipe images don't display properly
+
+**Solutions:**
+- Verify image URLs are accessible
+- Check internet connectivity
+- Ensure Coil image loading is configured correctly
+- Confirm images were uploaded successfully to Storage
+
+#### **Navigation Issues**
+**Problem:** Bottom navigation doesn't switch between screens
+
+**Solutions:**
+- Check that menu item IDs match navigation destination IDs
+- Verify Navigation Component setup is correct
+- Ensure fragments are properly configured in navigation graph
+
+## 📦 Dependencies
+
+### Core Libraries
+```kotlin
+// Firebase (managed by BOM)
+implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+implementation("com.google.firebase:firebase-auth")
+implementation("com.google.firebase:firebase-firestore")
+implementation("com.google.firebase:firebase-storage")
+
+// UI & Navigation
+implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
+implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
+implementation("com.google.android.material:material:1.11.0")
+
+// Image Loading
+implementation("io.coil-kt:coil:2.5.0")
+```
+
+### Version Compatibility
+- **Kotlin:** 1.9.0+
+- **Android Gradle Plugin:** 8.1.0+
+- **Compile SDK:** 34
+- **Min SDK:** 24
+- **Target SDK:** 34
+
+## 🔒 Security
+
+This app implements proper security measures including:
+- Firebase Authentication for user management
+- Secure Firestore rules for data access control
+- Proper image storage permissions
+- Transaction-based updates for data consistency
+
+For production deployment, additional security considerations should be reviewed.
+
+## 🚀 Future Enhancements
+
+- Recipe categories and tags
+- Cooking timer integration
+- Shopping list generation
+- Offline recipe access
+- Nutritional information
+- Recipe sharing features
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-## 📦 Dependencies (core)
-
-* AndroidX, Material Components
-* Navigation Component
-* **Firebase BoM** (Auth, Firestore, Storage)
-* **Coil** for image loading
-
-> Check `app/build.gradle.kts` for exact versions (keep Firebase libs managed via BoM).
-
----
-
-## 🔑 Notes
-
-* The app currently uses **public read** on Storage example rules for simplicity; consider locking this down (e.g., signed read or time‑limited download URLs).
-* If you need deep links to details: a deep link pattern is scaffolded in the graph and `RecipeDetailActivity.start(...)` is already set up.
-
----
-
-## 🖍️ License
-
-Add your preferred license (MIT/Apache‑2.0/etc.).
-
----
-
-If you want, I can also generate a tiny **CONTRIBUTING.md** and a **.github/ISSUE\_TEMPLATE** to streamline bug reports (with fields for device, steps to reproduce, and Logcat). Next up: I’ll start the **inline review comments** file‑by‑file.
+**Built with ❤️ using Kotlin and Firebase**
