@@ -12,6 +12,11 @@
         android:icon="@drawable/ic_list" />
 
     <item
+        android:id="@+id/nav_favorites"
+        android:title="Favorites"
+        android:icon="@drawable/ic_favorite" />
+
+    <item
         android:id="@+id/nav_profile"
         android:title="Profile"
         android:icon="@drawable/ic_person" />

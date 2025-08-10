@@ -1,4 +1,4 @@
-package com.example.hamatcon.ui
+package com.example.hamatcon
 
 import android.content.Intent
 import android.os.Bundle

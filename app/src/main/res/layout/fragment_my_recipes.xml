@@ -8,4 +8,14 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:padding="8dp"/>
+
+    <TextView
+        android:id="@+id/emptyText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No recipes yet"
+        android:textColor="@android:color/white"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
 </FrameLayout>

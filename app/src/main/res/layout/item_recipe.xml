@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:padding="12dp">
 
         <!-- Thumbnail -->
@@ -24,7 +25,7 @@
             android:contentDescription="Recipe image"
             android:background="@android:color/darker_gray" />
 
-        <!-- Recipe Details -->
+        <!-- Recipe Details (takes remaining space) -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -80,5 +81,15 @@
                     android:textSize="16sp" />
             </LinearLayout>
         </LinearLayout>
+
+        <!-- Heart on the RIGHT -->
+        <ImageButton
+            android:id="@+id/btnFavorite"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Favorite"
+            android:src="@drawable/ic_favorite_border"
+            android:padding="8dp" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

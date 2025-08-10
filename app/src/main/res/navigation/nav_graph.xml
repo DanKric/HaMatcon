@@ -5,21 +5,28 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_home">
 
-<fragment
+    <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.hamatcon.ui.HomeFragment"
+        android:name="com.example.hamatcon.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_my_recipes"
-        android:name="com.example.hamatcon.ui.MyRecipesFragment"
+        android:name="com.example.hamatcon.MyRecipesFragment"
         android:label="My Recipes"
         tools:layout="@layout/fragment_my_recipes" />
 
     <fragment
+        android:id="@+id/nav_favorites"
+        android:name="com.example.hamatcon.FavoritesFragment"
+        android:label="Favorites"
+        tools:layout="@layout/fragment_my_recipes" />
+
+
+    <fragment
         android:id="@+id/nav_profile"
-        android:name="com.example.hamatcon.ui.ProfileFragment"
+        android:name="com.example.hamatcon.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 </navigation>

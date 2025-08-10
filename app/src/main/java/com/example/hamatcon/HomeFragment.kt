@@ -1,4 +1,4 @@
-package com.example.hamatcon.ui
+package com.example.hamatcon
 
 import android.os.Bundle
 import android.text.Editable
@@ -9,11 +9,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.hamatcon.*
 import com.example.hamatcon.databinding.FragmentHomeBinding
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -25,6 +24,9 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var recipesListener: ListenerRegistration? = null
+    private var favListener: ListenerRegistration? = null
+    private val favoriteIds = mutableSetOf<String>()
+
     private lateinit var recipeAdapter: RecipeAdapter
     private val allRecipes = mutableListOf<Recipe>()
     private var filteredRecipes = mutableListOf<Recipe>()
@@ -55,7 +57,7 @@ class HomeFragment : Fragment() {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
                     val updated = com.example.hamatcon.logic.RecipeAutofill.backfillSeededTimeAndDifficulty(
-                        db = FirebaseFirestore.getInstance(),
+                        db = com.google.firebase.firestore.FirebaseFirestore.getInstance(),
                         ownerUidFilter = "seed"
                     )
                     android.widget.Toast.makeText(requireContext(), "Autofilled $updated recipes", android.widget.Toast.LENGTH_LONG).show()
@@ -71,7 +73,12 @@ class HomeFragment : Fragment() {
         binding.recyclerViewRecipes.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewRecipes.adapter = recipeAdapter
 
-        // Search
+        // Favorite toggle from adapter
+        recipeAdapter.onFavoriteClick = { recipeId, isCurrentlyFav ->
+            toggleFavorite(recipeId, isCurrentlyFav)
+        }
+
+        // Simple text search (will be replaced by chips autocomplete next step)
         binding.editTextSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = filterRecipes()
@@ -82,12 +89,13 @@ class HomeFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         attachRecipesListener()
+        attachFavoritesListener()
     }
 
     override fun onStop() {
         super.onStop()
-        recipesListener?.remove()
-        recipesListener = null
+        recipesListener?.remove(); recipesListener = null
+        favListener?.remove(); favListener = null
     }
 
     private fun attachRecipesListener() {
@@ -107,7 +115,8 @@ class HomeFragment : Fragment() {
                             cuisine = doc.getString("cuisine") ?: "",
                             ingredients = doc.get("ingredients") as? List<String> ?: emptyList(),
                             instructions = doc.getString("instructions") ?: "",
-                            ratings = (doc.get("ratings") as? List<Long>)?.map { it.toInt() } ?: emptyList()
+                            ratings = (doc.get("ratings") as? List<Long>)?.map { it.toInt() } ?: emptyList(),
+                            id = doc.id
                         )
                     )
                 }
@@ -116,10 +125,46 @@ class HomeFragment : Fragment() {
             }
     }
 
+    // Keep hearts in sync with user's favorites
+    private fun attachFavoritesListener() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        favListener = Firebase.firestore
+            .collection("users").document(uid)
+            .collection("favorites")
+            .addSnapshotListener { snap, _ ->
+                favoriteIds.clear()
+                snap?.forEach { favoriteIds.add(it.id) }
+                recipeAdapter.setFavoriteIds(favoriteIds)
+            }
+    }
+
+    // Toggle favorite + update aggregate count
+    private fun toggleFavorite(recipeId: String, currentlyFav: Boolean) {
+        val db = Firebase.firestore
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val favRef = db.collection("users").document(uid)
+            .collection("favorites").document(recipeId)
+        val recipeRef = db.collection("Recipes").document(recipeId)
+
+        db.runTransaction { tx ->
+            if (currentlyFav) {
+                tx.delete(favRef)
+                tx.update(recipeRef, "favoritesCount", FieldValue.increment(-1))
+            } else {
+                tx.set(favRef, mapOf(
+                    "saved" to true,
+                    "ts" to FieldValue.serverTimestamp()
+                ))
+                tx.update(recipeRef, "favoritesCount", FieldValue.increment(1))
+            }
+            null
+        }
+    }
+
     private fun setupCuisineChips() {
         binding.chipGroupCuisine.removeAllViews()
         getAllCuisines().forEach { cuisine ->
-            val chip = layoutInflater.inflate(R.layout.item_chip, binding.chipGroupCuisine, false) as Chip
+            val chip = layoutInflater.inflate(R.layout.item_chip, binding.chipGroupCuisine, false) as com.google.android.material.chip.Chip
             chip.text = cuisine
             chip.isCheckable = true
             chip.isChecked = cuisine.equals(selectedCuisine, ignoreCase = true)
@@ -138,12 +183,14 @@ class HomeFragment : Fragment() {
 
     private fun filterRecipes() {
         val tokens = parseQueryTokens(binding.editTextSearch.text?.toString())
+
         filteredRecipes = allRecipes.filter { r ->
             val matchesCuisine = (selectedCuisine == "All" || r.cuisine.equals(selectedCuisine, true))
             val ingredientsLower = r.ingredients.map { it.lowercase() }
             val matchesIngredients = tokens.all { t -> ingredientsLower.any { ing -> ing.contains(t) } }
             matchesCuisine && matchesIngredients
         }.toMutableList()
+
         recipeAdapter.updateList(filteredRecipes)
     }
 

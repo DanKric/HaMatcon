@@ -7,6 +7,8 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.hamatcon.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.example.hamatcon.data.UserRepository
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,5 +32,8 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.findFragmentById(R.id.nav_host) as NavHostFragment
         val navController = navHost.navController
         binding.bottomNav.setupWithNavController(navController)
+
+        UserRepository.ensureUserDocument()
+
     }
 }

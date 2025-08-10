@@ -22,11 +22,23 @@ class AddRecipeActivity : AppCompatActivity() {
             val cuisine = binding.editCuisine.text.toString().trim()
             val cookTime = binding.editCookTime.text.toString().trim()
             val difficulty = binding.editDifficulty.text.toString().trim()
-            val ingredients = binding.editIngredients.text.toString()
-                .split(",").map { it.trim() }.filter { it.isNotEmpty() }
-            val instructions = binding.editInstructions.text.toString().trim()
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
 
+            // Normalize ingredients: split, trim, lowercase, dedupe, drop empties
+            val ingredients = binding.editIngredients.text.toString()
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .map { it.lowercase() }
+                .distinct()
+
+            val instructions = binding.editInstructions.text.toString().trim()
+
+            // Require a logged-in user for creation
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid == null) {
+                Toast.makeText(this, "Please log in again.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             if (name.isEmpty() || cuisine.isEmpty() || cookTime.isEmpty() || ingredients.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
@@ -40,9 +52,13 @@ class AddRecipeActivity : AppCompatActivity() {
                 "difficulty" to difficulty,
                 "ingredients" to ingredients,
                 "instructions" to instructions,
-                "matchPercent" to 100,
-                "ratings" to listOf<Int>(),
-                "ownerUid" to (uid ?: "seed")
+                "ownerUid" to uid,
+
+                // helpful defaults
+                "imageUrl" to "",                 // to be set when we add uploads
+                "favoritesCount" to 0,            // used by Favorites logic
+                "ratings" to listOf<Int>(),       // keep existing shape
+                "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
             )
 
             Firebase.firestore.collection("Recipes")
@@ -55,5 +71,6 @@ class AddRecipeActivity : AppCompatActivity() {
                     Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
                 }
         }
+
     }
 }
