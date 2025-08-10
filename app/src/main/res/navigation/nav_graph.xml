@@ -5,6 +5,8 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/nav_home">
 
+    <!-- ===== Bottom Nav Tabs ===== -->
+
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.hamatcon.HomeFragment"
@@ -23,10 +25,29 @@
         android:label="Favorites"
         tools:layout="@layout/fragment_my_recipes" />
 
-
     <fragment
         android:id="@+id/nav_profile"
         android:name="com.example.hamatcon.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
+
+    <!-- ===== Global: open Recipe Detail (Activity) from anywhere ===== -->
+    <activity
+        android:id="@+id/recipeDetailActivity"
+        android:name="com.example.hamatcon.RecipeDetailActivity"
+        android:label="Recipe Detail">
+        <!-- Deep link example: app://recipe/{id} -->
+        <deepLink app:uri="app://recipe/{id}" />
+    </activity>
+
+    <!-- One global action instead of duplicating under each tab -->
+    <action
+        android:id="@+id/action_global_recipeDetailActivity"
+        app:destination="@id/recipeDetailActivity" />
+
+    <!-- (Optional) AddRecipe as an Activity destination, if you ever want to navigate via graph -->
+    <activity
+        android:id="@+id/addRecipeActivity"
+        android:name="com.example.hamatcon.AddRecipeActivity"
+        android:label="Add Recipe" />
 </navigation>

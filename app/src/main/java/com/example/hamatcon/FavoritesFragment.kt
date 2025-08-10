@@ -33,6 +33,7 @@ class FavoritesFragment : Fragment(R.layout.fragment_my_recipes) {
         adapter.onFavoriteClick = { recipeId, isCurrentlyFav ->
             toggleFavorite(recipeId, isCurrentlyFav)
         }
+
     }
 
     override fun onStart() {

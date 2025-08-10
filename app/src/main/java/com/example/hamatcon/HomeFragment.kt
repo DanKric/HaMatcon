@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hamatcon.databinding.FragmentHomeBinding
 import com.google.android.material.chip.Chip
@@ -19,7 +18,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
@@ -46,30 +44,6 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        // Logout
-        binding.logoutButton.setOnClickListener {
-            FirebaseAuth.getInstance().signOut()
-            val intent = android.content.Intent(requireContext(), LoginActivity::class.java)
-            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            requireActivity().finish()
-        }
-
-        // Backfill (dev)
-        binding.btnBackfill.setOnClickListener {
-            viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    val updated = com.example.hamatcon.logic.RecipeAutofill.backfillSeededTimeAndDifficulty(
-                        db = com.google.firebase.firestore.FirebaseFirestore.getInstance(),
-                        ownerUidFilter = "seed"
-                    )
-                    android.widget.Toast.makeText(requireContext(), "Autofilled $updated recipes", android.widget.Toast.LENGTH_LONG).show()
-                } catch (e: Exception) {
-                    android.util.Log.e("Autofill", "Failed", e)
-                    android.widget.Toast.makeText(requireContext(), "Autofill failed: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
-                }
-            }
-        }
 
         // Recycler
         recipeAdapter = RecipeAdapter(filteredRecipes).apply {

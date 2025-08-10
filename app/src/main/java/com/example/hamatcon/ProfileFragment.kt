@@ -2,13 +2,17 @@ package com.example.hamatcon
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
+import android.util.Patterns
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import com.google.android.material.button.MaterialButton
 import androidx.fragment.app.Fragment
-import com.example.hamatcon.LoginActivity
-import com.example.hamatcon.R
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -23,151 +27,132 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize Firebase
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
 
-        // Find views
+        // Views
         val emailTv = view.findViewById<TextView>(R.id.tvEmail)
-        val nameTv = view.findViewById<TextView>(R.id.tvName)
         val recipeCountTv = view.findViewById<TextView>(R.id.tvRecipeCount)
         val favoriteCountTv = view.findViewById<TextView>(R.id.tvFavoriteCount)
-        val lastRecipeDateTv = view.findViewById<TextView>(R.id.tvLastRecipeDate)
         val logoutBtn = view.findViewById<MaterialButton>(R.id.btnLogout)
-        val editProfileBtn = view.findViewById<MaterialButton>(R.id.btnEditProfile)
-        val settingsBtn = view.findViewById<MaterialButton>(R.id.btnSettings)
 
-        // Set user info
+        // User info
         val user = auth.currentUser
         emailTv.text = user?.email ?: "No email"
-        nameTv.text = user?.displayName ?: "No name set"
 
-        // Load user statistics
-        loadUserStatistics(recipeCountTv, favoriteCountTv, lastRecipeDateTv)
+        // Logout
+        logoutBtn.setOnClickListener { performLogout() }
 
-        // Set button listeners
-        logoutBtn.setOnClickListener {
-            performLogout()
-        }
-
-        editProfileBtn.setOnClickListener {
-            // TODO: Implement edit profile functionality
-            Toast.makeText(requireContext(), "Edit Profile - Coming soon!", Toast.LENGTH_SHORT).show()
-        }
-
-        settingsBtn.setOnClickListener {
-            // TODO: Implement settings functionality
-            Toast.makeText(requireContext(), "Settings - Coming soon!", Toast.LENGTH_SHORT).show()
-        }
+        // Load stats
+        loadUserStatistics(recipeCountTv, favoriteCountTv)
     }
 
+    /**
+     * Loads:
+     * 1) Total recipes owned by the current user.
+     * 2) Favorites count that matches Favorites tab by ignoring stale favorites.
+     */
     private fun loadUserStatistics(
         recipeCountTv: TextView,
-        favoriteCountTv: TextView,
-        lastRecipeDateTv: TextView
+        favoriteCountTv: TextView
     ) {
-        val user = auth.currentUser
-        if (user == null) {
+        val user = auth.currentUser ?: run {
             recipeCountTv.text = "0"
             favoriteCountTv.text = "0"
-            lastRecipeDateTv.text = "Never"
             return
         }
+        val uid = user.uid
 
-        val userId = user.uid
-
-        // Load total recipe count
-        firestore.collection("recipes")
-            .whereEqualTo("userId", userId)
+        // Total recipes owned
+        firestore.collection("Recipes")
+            .whereEqualTo("ownerUid", uid)
             .get()
-            .addOnSuccessListener { documents ->
-                recipeCountTv.text = documents.size().toString()
-            }
-            .addOnFailureListener {
-                recipeCountTv.text = "0"
-            }
+            .addOnSuccessListener { snap -> recipeCountTv.text = snap.size().toString() }
+            .addOnFailureListener { recipeCountTv.text = "0" }
 
-        // Load favorite recipe count
-        firestore.collection("recipes")
-            .whereEqualTo("userId", userId)
-            .whereEqualTo("isFavorite", true)
+        // Favorites count matching Favorites tab
+        firestore.collection("users").document(uid).collection("favorites")
             .get()
-            .addOnSuccessListener { documents ->
-                favoriteCountTv.text = documents.size().toString()
-            }
-            .addOnFailureListener {
-                favoriteCountTv.text = "0"
-            }
+            .addOnSuccessListener { favSnap ->
+                if (favSnap.isEmpty) {
+                    favoriteCountTv.text = "0"
+                    return@addOnSuccessListener
+                }
 
-        // Load last recipe date
-        firestore.collection("recipes")
-            .whereEqualTo("userId", userId)
-            .orderBy("createdAt", Query.Direction.DESCENDING)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    lastRecipeDateTv.text = "Never"
-                } else {
-                    val lastRecipe = documents.first()
-                    val createdAt = lastRecipe.getTimestamp("createdAt")
-                    if (createdAt != null) {
-                        val date = createdAt.toDate()
-                        val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-                        val today = Calendar.getInstance()
-                        val recipeDate = Calendar.getInstance().apply { time = date }
+                var existing = 0
+                var processed = 0
+                val total = favSnap.size()
 
-                        when {
-                            isSameDay(today, recipeDate) -> {
-                                lastRecipeDateTv.text = "Today"
-                            }
-                            isYesterday(today, recipeDate) -> {
-                                lastRecipeDateTv.text = "Yesterday"
-                            }
-                            else -> {
-                                lastRecipeDateTv.text = dateFormat.format(date)
+                favSnap.documents.forEach { fdoc ->
+                    val recipeId = fdoc.id
+                    firestore.collection("Recipes").document(recipeId).get()
+                        .addOnSuccessListener { r ->
+                            if (r.exists()) existing++
+                        }
+                        .addOnCompleteListener {
+                            processed++
+                            if (processed == total) {
+                                favoriteCountTv.text = existing.toString()
                             }
                         }
-                    } else {
-                        lastRecipeDateTv.text = "Unknown"
-                    }
                 }
             }
-            .addOnFailureListener {
-                lastRecipeDateTv.text = "Unknown"
-            }
-    }
-
-    private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
-        return cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
-                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
-    }
-
-    private fun isYesterday(today: Calendar, date: Calendar): Boolean {
-        val yesterday = Calendar.getInstance().apply {
-            time = today.time
-            add(Calendar.DAY_OF_YEAR, -1)
-        }
-        return isSameDay(yesterday, date)
+            .addOnFailureListener { favoriteCountTv.text = "0" }
     }
 
     private fun performLogout() {
         auth.signOut()
-        val intent = Intent(requireContext(), LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val intent = Intent(requireContext(), LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         startActivity(intent)
         requireActivity().finish()
     }
 
-    override fun onResume() {
-        super.onResume()
-        // Refresh statistics when fragment becomes visible
-        val recipeCountTv = view?.findViewById<TextView>(R.id.tvRecipeCount)
-        val favoriteCountTv = view?.findViewById<TextView>(R.id.tvFavoriteCount)
-        val lastRecipeDateTv = view?.findViewById<TextView>(R.id.tvLastRecipeDate)
+    private fun showEditEmailDialog(emailTv: TextView) {
+        val ctx = requireContext()
+        val container = View.inflate(ctx, R.layout.view_edit_email, null)
 
-        if (recipeCountTv != null && favoriteCountTv != null && lastRecipeDateTv != null) {
-            loadUserStatistics(recipeCountTv, favoriteCountTv, lastRecipeDateTv)
-        }
+        val emailLayout = container.findViewById<TextInputLayout>(R.id.inputLayoutEmail)
+        val emailEt = container.findViewById<TextInputEditText>(R.id.editEmail)
+        val passLayout = container.findViewById<TextInputLayout>(R.id.inputLayoutPassword)
+        val passEt = container.findViewById<TextInputEditText>(R.id.editPassword)
+
+        emailEt.setText(auth.currentUser?.email ?: "")
+
+        MaterialAlertDialogBuilder(ctx)
+            .setTitle("Change Email")
+            .setView(container)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Save") { _, _ ->
+                val newEmail = emailEt.text?.toString()?.trim().orEmpty()
+                val password = passEt.text?.toString().orEmpty()
+
+                if (!Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+                    Toast.makeText(ctx, "Please enter a valid email", Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+                val user = auth.currentUser
+                if (user == null || user.email.isNullOrBlank()) {
+                    Toast.makeText(ctx, "Not signed in", Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+
+                // Re-auth then update email
+                val credential = EmailAuthProvider.getCredential(user.email!!, password)
+                user.reauthenticate(credential).addOnSuccessListener {
+                    user.updateEmail(newEmail).addOnSuccessListener {
+                        emailTv.text = newEmail
+                        Toast.makeText(ctx, "Email updated", Toast.LENGTH_LONG).show()
+                        // Optional: send verification
+                        user.sendEmailVerification()
+                    }.addOnFailureListener { e ->
+                        Toast.makeText(ctx, "Update failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }.addOnFailureListener { e ->
+                    Toast.makeText(ctx, "Re-auth failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+            .show()
     }
 }

@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Image on top, rounded top corners -->
+        <!-- Image on top -->
         <ImageView
             android:id="@+id/imageViewThumbnail"
             android:layout_width="match_parent"
@@ -40,51 +40,45 @@
             android:layout_height="wrap_content"
             android:visibility="gone" />
 
-        <!-- Rating bar and button row -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Rating bar above button -->
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:isIndicator="true"
+            android:progressTint="#C89B3C"
+            android:secondaryProgressTint="#C89B3C"
+            android:progressBackgroundTint="#878787"
             android:layout_marginTop="4dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="8dp" />
 
-            <RatingBar
-                android:id="@+id/ratingBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:numStars="0"
-                android:stepSize="0.5"
-                android:isIndicator="true"
-                android:progressTint="#C89B3C"
-                android:secondaryProgressTint="#C89B3C"
-                android:layout_marginEnd="16dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonRate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rate"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:backgroundTint="#415A77"
-                android:textColor="@android:color/white"
-                app:cornerRadius="16dp"
-                app:strokeWidth="0dp"
-                app:elevation="2dp"
-                app:icon="@drawable/ic_star"
-                app:iconGravity="textStart"
-                app:iconSize="12dp"
-                app:iconTint="@android:color/white" />
-
-        </LinearLayout>
+        <!-- Rate button below stars -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonRate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rate"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:backgroundTint="#415A77"
+            android:textColor="@android:color/white"
+            app:cornerRadius="16dp"
+            app:strokeWidth="0dp"
+            app:elevation="2dp"
+            app:icon="@drawable/ic_star"
+            app:iconGravity="textStart"
+            app:iconSize="12dp"
+            app:iconTint="@android:color/white" />
 
         <!-- Meta row -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
