@@ -147,10 +147,11 @@ class HomeFragment : Fragment() {
                             cuisine = doc.getString("cuisine") ?: "",
                             ingredients = doc.get("ingredients") as? List<String> ?: emptyList(),
                             instructions = doc.getString("instructions") ?: "",
-                            ratings = (doc.get("ratings") as? List<Long>)?.map { it.toInt() } ?: emptyList(),
                             id = doc.id,
                             favoritesCount = doc.getLong("favoritesCount")?.toInt() ?: 0,
-                            imageUrl = doc.getString("imageUrl") ?: ""
+                            imageUrl = doc.getString("imageUrl") ?: "",
+                            ratingSum = doc.getLong("ratingSum")?.toInt() ?: 0,
+                            ratingCount = doc.getLong("ratingCount")?.toInt() ?: 0,
                         )
                     )
                 }

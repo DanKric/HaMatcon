@@ -2,12 +2,11 @@ package com.example.hamatcon
 
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.PopupMenu
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
-import com.example.hamatcon.databinding.ItemRecipeBinding
 import coil.load
-
+import com.example.hamatcon.databinding.ItemRecipeBinding
 
 class RecipeAdapter(private val recipes: MutableList<Recipe>) :
     RecyclerView.Adapter<RecipeAdapter.RecipeViewHolder>() {
@@ -21,12 +20,20 @@ class RecipeAdapter(private val recipes: MutableList<Recipe>) :
     var onFavoriteClick: ((recipeId: String, isCurrentlyFav: Boolean) -> Unit)? = null
     // ---------------------------
 
-    // 🔽 NEW: control whether favorites count is visible
+    // show/hide favorites count on card
     private var showFavoritesCount: Boolean = false
-    fun setShowFavoritesCount(show: Boolean) {
-        showFavoritesCount = show
-        notifyDataSetChanged()
-    }
+    fun setShowFavoritesCount(show: Boolean) { showFavoritesCount = show; notifyDataSetChanged() }
+
+    // show/hide "N ratings" label on card
+    private var showRatingCount: Boolean = false
+    fun setShowRatingCount(show: Boolean) { showRatingCount = show; notifyDataSetChanged() }
+
+    // show/hide owner overflow menu (⋮)
+    private var showOwnerMenu: Boolean = false
+    fun setShowOwnerMenu(show: Boolean) { showOwnerMenu = show; notifyDataSetChanged() }
+
+    var onEditClick: ((recipe: Recipe) -> Unit)? = null
+    var onDeleteClick: ((recipe: Recipe) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeViewHolder {
         val binding = ItemRecipeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -36,23 +43,28 @@ class RecipeAdapter(private val recipes: MutableList<Recipe>) :
     override fun onBindViewHolder(holder: RecipeViewHolder, position: Int) {
         val recipe = recipes[position]
 
-        // Heart toggle
+        // --- Heart toggle ---
         holder.binding.btnFavorite?.let { btn ->
             val isFav = favoriteIds.contains(recipe.id)
             btn.setImageResource(if (isFav) R.drawable.ic_favorite else R.drawable.ic_favorite_border)
             btn.setOnClickListener { onFavoriteClick?.invoke(recipe.id, isFav) }
         }
 
-        // Favorites count (shown only if flag enabled)
+        // --- Favorites count (optional) ---
         holder.binding.textViewFavoritesCount?.apply {
             visibility = if (showFavoritesCount) View.VISIBLE else View.GONE
             text = recipe.favoritesCount.toString()
         }
 
-        // Format cook time (e.g., "90" or "90 min" -> "1 hr 30 min")
+        // --- "N ratings" label (optional) ---
+        holder.binding.textViewRatingCount?.apply {
+            visibility = if (showRatingCount) View.VISIBLE else View.GONE
+            text = if (recipe.ratingCount == 1) "1 rating" else "${recipe.ratingCount} ratings"
+        }
+
+        // --- Pretty cook time ---
         val cookTimeFormatted = run {
-            // Extract the first continuous number in the string, if any
-            val numMatch = Regex("(\\d+)").find(recipe.cookTime ?: "")
+            val numMatch = Regex("(\\d+)").find(recipe.cookTime)
             val minutes = numMatch?.groupValues?.getOrNull(1)?.toIntOrNull()
             if (minutes != null) {
                 if (minutes >= 60) {
@@ -62,19 +74,17 @@ class RecipeAdapter(private val recipes: MutableList<Recipe>) :
                 } else {
                     "${minutes} min"
                 }
-            } else {
-                // If not numeric, show as-is
-                recipe.cookTime
-            }
+            } else recipe.cookTime
         }
 
+        // --- Image via Coil ---
         holder.binding.imageViewThumbnail.load(recipe.imageUrl.ifBlank { null }) {
             placeholder(R.drawable.placeholder)
             error(R.drawable.placeholder)
             crossfade(true)
         }
 
-        // Owner overflow menu (⋮)
+        // --- Owner overflow menu (⋮) ---
         holder.binding.btnOverflow?.apply {
             visibility = if (showOwnerMenu) View.VISIBLE else View.GONE
             setOnClickListener { v ->
@@ -91,25 +101,17 @@ class RecipeAdapter(private val recipes: MutableList<Recipe>) :
             }
         }
 
-
-        // Bind main fields
-        holder.binding.ratingBar.rating = recipe.averageRating()
+        // --- Bind main fields ---
         holder.binding.textViewRecipeName.text = recipe.name.ifEmpty { "Unnamed Recipe" }
         holder.binding.textViewDifficulty.text = recipe.difficulty
         holder.binding.textViewCookTime.text = cookTimeFormatted
+        holder.binding.ratingBar.rating = recipe.averageRating() // stars under the heart per your layout
 
-        // Card click -> details
+        // --- Card click -> details ---
         holder.itemView.setOnClickListener {
             RecipeDetailActivity.start(holder.itemView.context, recipe)
         }
     }
-    // edit / delete menu
-
-    private var showOwnerMenu: Boolean = false
-    fun setShowOwnerMenu(show: Boolean) { showOwnerMenu = show; notifyDataSetChanged() }
-
-    var onEditClick: ((recipe: Recipe) -> Unit)? = null
-    var onDeleteClick: ((recipe: Recipe) -> Unit)? = null
 
     override fun getItemCount(): Int = recipes.size
 

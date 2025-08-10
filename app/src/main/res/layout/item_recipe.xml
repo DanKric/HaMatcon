@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Image on top with rounded top corners -->
+        <!-- Image on top -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="180dp">
@@ -32,36 +32,7 @@
                 android:background="@drawable/rounded_top_image_bg"
                 android:clipToOutline="true" />
 
-            <!-- Heart + count overlay (top-right) -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|end"
-                android:layout_margin="10dp"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:background="@android:color/transparent">
-
-                <ImageButton
-                    android:id="@+id/btnFavorite"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Favorite"
-                    android:src="@drawable/ic_favorite_border"
-                    android:padding="6dp" />
-
-                <TextView
-                    android:id="@+id/textViewFavoritesCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:textColor="#1B263B" />
-            </LinearLayout>
-
-            <!-- Owner menu (⋮) hidden by default; shown in My Recipes -->
+            <!-- Owner menu (⋮) — hidden by default; shown in My Recipes -->
             <ImageButton
                 android:id="@+id/btnOverflow"
                 android:layout_width="36dp"
@@ -75,7 +46,7 @@
                 app:tint="#1B263B" />
         </FrameLayout>
 
-        <!-- Content -->
+        <!-- Content block (kept as-is) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,6 +61,7 @@
                 android:textSize="16sp"
                 android:textColor="#0D1B2A" />
 
+            <!-- Existing stars (kept in content area) -->
             <RatingBar
                 android:id="@+id/ratingBar"
                 style="?android:attr/ratingBarStyleSmall"
@@ -124,6 +96,69 @@
                     android:textStyle="bold"
                     android:textSize="14sp"
                     android:textColor="#1F2937" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bottom bar: keep heart/counter on right; add rating count underneath -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp">
+
+            <!-- Spacer pushes everything to the right -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Right stack: heart row (top) + rating count (bottom) -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end">
+
+                <!-- Heart + favorites count row (unchanged) -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end">
+
+                    <ImageButton
+                        android:id="@+id/btnFavorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:contentDescription="Favorite"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_favorite_border" />
+
+                    <TextView
+                        android:id="@+id/textViewFavoritesCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="#000000"
+                        android:paddingStart="4dp" />
+                </LinearLayout>
+
+                <!-- NEW: rating count directly under the heart row -->
+                <TextView
+                    android:id="@+id/textViewRatingCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="0 ratings"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
 

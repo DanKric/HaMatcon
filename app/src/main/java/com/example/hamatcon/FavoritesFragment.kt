@@ -105,9 +105,10 @@ class FavoritesFragment : Fragment(R.layout.fragment_my_recipes) {
                             cuisine = d.getString("cuisine") ?: "",
                             ingredients = (d.get("ingredients") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList(),
                             instructions = d.getString("instructions") ?: "",
-                            ratings = (d.get("ratings") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList(),
                             favoritesCount = d.getLong("favoritesCount")?.toInt() ?: 0,
-                            imageUrl = d.getString("imageUrl") ?: ""  // ✅ pull the image URL
+                            imageUrl = d.getString("imageUrl") ?: "" ,
+                            ratingSum = d.getLong("ratingSum")?.toInt() ?: 0,
+                            ratingCount = d.getLong("ratingCount")?.toInt() ?: 0,
                         )
                         recipeMap[d.id] = recipe
                     }
