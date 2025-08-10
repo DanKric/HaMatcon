@@ -45,10 +45,6 @@ class HomeFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // Add Recipe
-        binding.fabAddRecipe.setOnClickListener {
-            startActivity(android.content.Intent(requireContext(), AddRecipeActivity::class.java))
-        }
 
         // Logout
         binding.logoutButton.setOnClickListener {
@@ -153,7 +149,8 @@ class HomeFragment : Fragment() {
                             instructions = doc.getString("instructions") ?: "",
                             ratings = (doc.get("ratings") as? List<Long>)?.map { it.toInt() } ?: emptyList(),
                             id = doc.id,
-                            favoritesCount = doc.getLong("favoritesCount")?.toInt() ?: 0 // ✅ moved inside
+                            favoritesCount = doc.getLong("favoritesCount")?.toInt() ?: 0,
+                            imageUrl = doc.getString("imageUrl") ?: ""
                         )
                     )
                 }

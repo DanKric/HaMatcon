@@ -16,18 +16,20 @@ class FavoritesFragment : Fragment(R.layout.fragment_my_recipes) {
     private lateinit var adapter: RecipeAdapter
 
     // Live state
-    private val recipeMap = linkedMapOf<String, Recipe>()           // id -> Recipe (preserves insertion order)
-    private var favIdsOrdered: List<String> = emptyList()           // ordered by ts desc
+    private val recipeMap = linkedMapOf<String, Recipe>()   // id -> Recipe (preserve order)
+    private var favIdsOrdered: List<String> = emptyList()   // ordered by ts desc
     private val chunkListeners = mutableListOf<ListenerRegistration>()
     private var favListener: ListenerRegistration? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val rv = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerMy)
         rv.layoutManager = LinearLayoutManager(requireContext())
-        adapter = RecipeAdapter(mutableListOf())
+        adapter = RecipeAdapter(mutableListOf()).apply {
+            setShowFavoritesCount(true) // show the little count under the heart (optional)
+        }
         rv.adapter = adapter
 
-        // Hearts should work here too
+        // Heart toggle works here too
         adapter.onFavoriteClick = { recipeId, isCurrentlyFav ->
             toggleFavorite(recipeId, isCurrentlyFav)
         }
@@ -40,34 +42,44 @@ class FavoritesFragment : Fragment(R.layout.fragment_my_recipes) {
 
     override fun onStop() {
         super.onStop()
+        // Detach listeners and clear UI so nothing leaks across users
         favListener?.remove(); favListener = null
         chunkListeners.forEach { it.remove() }
         chunkListeners.clear()
+        recipeMap.clear()
+        favIdsOrdered = emptyList()
+        adapter.setFavoriteIds(emptySet())
+        adapter.updateList(emptyList())
     }
 
     private fun attachFavorites() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = Firebase.firestore
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+            adapter.setFavoriteIds(emptySet())
+            adapter.updateList(emptyList())
+            return
+        }
 
+        val db = Firebase.firestore
         favListener?.remove()
         favListener = db.collection("users").document(uid)
             .collection("favorites")
             .orderBy("ts", com.google.firebase.firestore.Query.Direction.DESCENDING)
             .addSnapshotListener { snap, _ ->
-                // 1) Update adapter’s heart state
                 val ids = snap?.documents?.map { it.id } ?: emptyList()
+
+                // 1) Update hearts
                 adapter.setFavoriteIds(ids.toSet())
 
                 // 2) Keep display order by ts
                 favIdsOrdered = ids
 
-                // 3) Load recipes in chunks
+                // 3) Load recipe docs
                 loadFavoriteRecipes(ids)
             }
     }
 
     private fun loadFavoriteRecipes(ids: List<String>) {
-        // Clear old recipe listeners
+        // Clear old listeners
         chunkListeners.forEach { it.remove() }
         chunkListeners.clear()
 
@@ -81,24 +93,26 @@ class FavoritesFragment : Fragment(R.layout.fragment_my_recipes) {
             val reg = db.collection("Recipes")
                 .whereIn(FieldPath.documentId(), chunk)
                 .addSnapshotListener { snap, _ ->
-                    // Merge into map
+                    // Merge/refresh map
                     snap?.documents?.forEach { d ->
-                        val r = Recipe(
+                        val recipe = Recipe(
+                            id = d.id,
                             name = d.getString("name") ?: "",
                             matchPercent = d.getLong("matchPercent")?.toInt() ?: 0,
                             difficulty = d.getString("difficulty") ?: "",
                             cookTime = d.getString("cookTime") ?: "",
                             thumbnailResId = R.drawable.placeholder,
                             cuisine = d.getString("cuisine") ?: "",
-                            ingredients = d.get("ingredients") as? List<String> ?: emptyList(),
+                            ingredients = (d.get("ingredients") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList(),
                             instructions = d.getString("instructions") ?: "",
-                            ratings = (d.get("ratings") as? List<Long>)?.map { it.toInt() } ?: emptyList(),
-                            id = d.id
+                            ratings = (d.get("ratings") as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: emptyList(),
+                            favoritesCount = d.getLong("favoritesCount")?.toInt() ?: 0,
+                            imageUrl = d.getString("imageUrl") ?: ""  // ✅ pull the image URL
                         )
-                        recipeMap[d.id] = r
+                        recipeMap[d.id] = recipe
                     }
 
-                    // Rebuild list in favored order (ts desc)
+                    // Keep UI in the same order as favorites (ts desc)
                     val ordered = favIdsOrdered.mapNotNull { recipeMap[it] }
                     adapter.updateList(ordered)
                 }

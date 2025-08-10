@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dark_background"
+    android:background="@drawable/gradient_background"
     android:padding="16dp">
 
     <!-- Top row: Logout (left) + Backfill (right) -->
@@ -129,18 +129,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/item_recipe" />
-
-    <!-- Add Recipe FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddRecipe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Add Recipe"
-        app:srcCompat="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/teal_700"
-        app:tint="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_margin="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

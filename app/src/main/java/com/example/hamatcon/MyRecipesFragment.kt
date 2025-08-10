@@ -25,6 +25,12 @@ class MyRecipesFragment : Fragment(R.layout.fragment_my_recipes) {
         val rv = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerMy)
         rv.layoutManager = LinearLayoutManager(requireContext())
 
+        view.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fabAddRecipe)
+            .setOnClickListener {
+                startActivity(android.content.Intent(requireContext(), AddRecipeActivity::class.java))
+            }
+
+
         adapter = RecipeAdapter(mutableListOf()).apply {
             setShowFavoritesCount(true)  // show ♥ N here
             setShowOwnerMenu(true)       // show ⋮ menu only in My Recipes
@@ -145,7 +151,8 @@ class MyRecipesFragment : Fragment(R.layout.fragment_my_recipes) {
                 instructions = doc.getString("instructions") ?: "",
                 ratings = (doc.get("ratings") as? List<Long>)?.map { it.toInt() } ?: emptyList(),
                 id = doc.id,
-                favoritesCount = doc.getLong("favoritesCount")?.toInt() ?: 0
+                favoritesCount = doc.getLong("favoritesCount")?.toInt() ?: 0,
+                imageUrl = doc.getString("imageUrl") ?: ""
             )
             android.util.Log.d("MyRecipes", "Bind: ${r.name} (${r.id})")
             myRecipes.add(r)

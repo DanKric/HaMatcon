@@ -97,7 +97,6 @@ class RecipeAdapter(private val recipes: MutableList<Recipe>) :
         holder.binding.textViewRecipeName.text = recipe.name.ifEmpty { "Unnamed Recipe" }
         holder.binding.textViewDifficulty.text = recipe.difficulty
         holder.binding.textViewCookTime.text = cookTimeFormatted
-        holder.binding.imageViewThumbnail.setImageResource(recipe.thumbnailResId)
 
         // Card click -> details
         holder.itemView.setOnClickListener {

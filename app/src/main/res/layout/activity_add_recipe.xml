@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0D1B2A"
+    android:background="@drawable/gradient_background"
     android:padding="16dp"
     android:fillViewport="true">
 
@@ -12,6 +12,46 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:showDividers="none">
+
+        <!-- 🔳 Image Preview Box with hint -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/rounded_image_bg">
+
+            <ImageView
+                android:id="@+id/imagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:clipToOutline="true"
+                android:contentDescription="Recipe image preview" />
+
+            <TextView
+                android:id="@+id/imageHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tap “Add image” to choose a photo"
+                android:textColor="#B0C4DE"
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center" />
+        </FrameLayout>
+
+        <!-- ➕ Add image button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add image"
+            android:backgroundTint="#415A77"
+            android:textColor="@android:color/white"
+            app:cornerRadius="16dp"
+            android:layout_marginBottom="14dp" />
+
+        <!-- ====== Your existing form fields (unchanged) ====== -->
 
         <!-- Name -->
         <TextView

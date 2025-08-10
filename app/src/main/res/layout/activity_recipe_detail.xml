@@ -3,22 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
-    android:background="@android:color/white">
+    android:background="#F5F5DC">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Image on top, rounded top corners -->
         <ImageView
             android:id="@+id/imageViewThumbnail"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="220dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/placeholder"
-            android:layout_marginBottom="20dp"
-            android:contentDescription="Recipe image" />
+            android:contentDescription="Recipe image"
+            android:background="@drawable/rounded_top_image_bg"
+            android:clipToOutline="true"
+            android:layout_marginBottom="16dp" />
 
+        <!-- Title -->
         <TextView
             android:id="@+id/textViewRecipeName"
             android:layout_width="match_parent"
@@ -26,18 +29,17 @@
             android:text="Recipe Name"
             android:textSize="26sp"
             android:textStyle="bold"
-            android:textColor="@android:color/black"
+            android:textColor="#0D1B2A"
             android:layout_marginBottom="8dp" />
 
+        <!-- Hide match completely -->
         <TextView
             android:id="@+id/textViewMatchPercent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="80% match"
-            android:textColor="@color/teal_700"
-            android:textSize="16sp" />
+            android:visibility="gone" />
 
+        <!-- Rating -->
         <RatingBar
             android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
@@ -45,12 +47,15 @@
             android:numStars="5"
             android:stepSize="0.5"
             android:isIndicator="true"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="4dp"
+            android:progressTint="#C89B3C"
+            android:secondaryProgressTint="#C89B3C" />
 
-
+        <!-- Meta row -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
             android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
@@ -58,26 +63,31 @@
                 android:id="@+id/textViewDifficulty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
                 android:text="Easy"
-                android:textSize="16sp" />
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#1F2937"
+                android:layout_marginEnd="16dp" />
 
             <TextView
                 android:id="@+id/textViewCookTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="20 min"
-                android:textSize="16sp" />
-
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#1F2937" />
         </LinearLayout>
 
+        <!-- Ingredients -->
         <TextView
             android:id="@+id/textViewIngredientsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ingredients:"
+            android:text="Ingredients"
             android:textStyle="bold"
             android:textSize="18sp"
+            android:textColor="#0D1B2A"
             android:layout_marginBottom="6dp" />
 
         <TextView
@@ -86,15 +96,18 @@
             android:layout_height="wrap_content"
             android:text="• Ingredient 1\n• Ingredient 2"
             android:textSize="16sp"
-            android:lineSpacingExtra="4dp"
-            android:scrollbars="vertical" />
+            android:textColor="#0D1B2A"
+            android:lineSpacingExtra="4dp" />
+
+        <!-- Instructions -->
         <TextView
             android:id="@+id/textViewInstructionsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Instructions:"
+            android:text="Instructions"
             android:textStyle="bold"
             android:textSize="18sp"
+            android:textColor="#0D1B2A"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="6dp" />
 
@@ -104,8 +117,8 @@
             android:layout_height="wrap_content"
             android:text="Step-by-step instructions will appear here."
             android:textSize="16sp"
+            android:textColor="#0D1B2A"
             android:lineSpacingExtra="4dp" />
 
     </LinearLayout>
-
 </ScrollView>

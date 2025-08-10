@@ -53,6 +53,8 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-storage")
+    implementation("io.coil-kt:coil:2.6.0")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Lifecycle (for lifecycleScope)
@@ -72,7 +74,7 @@ dependencies {
 
     implementation ("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation ("androidx.navigation:navigation-ui-ktx:2.7.7")
-    implementation("io.coil-kt:coil:2.6.0")
+
 
 
 }

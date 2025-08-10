@@ -5,10 +5,12 @@
     android:layout_height="wrap_content"
     style="@style/Widget.MaterialComponents.Chip.Choice"
     android:text="Cuisine"
+    android:textColor="@color/black"
+    android:textStyle="bold"
     android:checkable="true"
     android:clickable="true"
     android:focusable="true"
     app:chipCornerRadius="16dp"
-    app:chipBackgroundColor="@color/chip_bg_selector"
+    app:chipBackgroundColor="#BE6917"
     app:checkedIconVisible="false"
     android:layout_marginEnd="8dp"/>
